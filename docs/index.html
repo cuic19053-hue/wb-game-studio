@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>wb-game-studio · 在线试玩</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 48px 24px 64px; background: #f7f8fa; color: #1c1f23;
+         font: 15px/1.7 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  main { max-width: 880px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 600; margin: 0 0 8px; }
+  p.lead { color: #5b6572; margin: 0 0 32px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  a.card { display: block; background: #fff; border: 1px solid #e4e7ec; border-radius: 14px;
+           overflow: hidden; text-decoration: none; color: inherit; transition: transform .15s ease; }
+  a.card:hover { transform: translateY(-3px); }
+  a.card img { display: block; width: 100%; height: auto; background: #000; }
+  .body { padding: 16px 18px 20px; }
+  .tag { display: inline-block; font-size: 12px; color: #185fa5; background: #e6f1fb;
+         border-radius: 6px; padding: 2px 8px; margin-bottom: 8px; }
+  h2 { font-size: 17px; font-weight: 600; margin: 0 0 6px; }
+  p { margin: 0; color: #5b6572; font-size: 13px; }
+  .play { display: inline-block; margin-top: 14px; font-size: 13px; color: #185fa5; }
+  footer { margin-top: 40px; color: #8a939f; font-size: 13px; }
+  code { background: #eef0f3; border-radius: 4px; padding: 1px 5px; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>wb-game-studio · 在线试玩</h1>
+  <p class="lead">一句话生成的小游戏，构建成单个离线 HTML 文件。点开即玩，不发任何网络请求。</p>
+  <div class="grid">
+    <a class="card" href="2d.html">
+      <img src="screenshots/2d.png" alt="2D 游戏画面">
+      <div class="body">
+        <span class="tag">2D · collector</span>
+        <h2>月夜狐·提灯</h2>
+        <p>俯视收集躲避。WASD / 方向键移动，收集灯笼、避开荆棘怪。</p>
+        <span class="play">开始试玩 →</span>
+      </div>
+    </a>
+    <a class="card" href="3d.html">
+      <img src="screenshots/3d.png" alt="3D 游戏画面">
+      <div class="body">
+        <span class="tag">3D · voxel</span>
+        <h2>体素岛·提灯</h2>
+        <p>three.js 体素世界，内联运行时。同样的玩法，立体场景。</p>
+        <span class="play">开始试玩 →</span>
+      </div>
+    </a>
+  </div>
+  <footer>
+    两个页面都是 <code>build</code> 产出的自包含 HTML（约 45 KB / 740 KB），可另存到本地双击打开。<br>
+    项目源码与文档见仓库 README · MIT License
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "template": "collector",
+  "title": "月夜狐·提灯",
+  "slots": {
+    "hero": {
+      "file": "assets/hero.svg",
+      "label": "小狐狸",
+      "size": [
+        256,
+        256
+      ],
+      "transparent": true
+    },
+    "enemy": {
+      "file": "assets/enemy.svg",
+      "label": "荆棘怪",
+      "size": [
+        256,
+        256
+      ],
+      "transparent": true
+    },
+    "pickup": {
+      "file": "assets/pickup.svg",
+      "label": "灯笼",
+      "size": [
+        256,
+        256
+      ],
+      "transparent": true
+    },
+    "background": {
+      "file": "assets/background.svg",
+      "label": "Background",
+      "size": [
+        512,
+        512
+      ],
+      "transparent": false,
+      "tile": true
+    }
+  },
+  "rules": {
+    "duration": 60,
+    "hearts": 3,
+    "heroSpeed": 320,
+    "enemySpeed": 150,
+    "enemySpeedGrowth": 3,
+    "enemySpawnEvery": 4,
+    "maxEnemies": 8,
+    "maxPickups": 6,
+    "heroSize": 76,
+    "enemySize": 68,
+    "pickupSize": 44,
+    "shield": {
+      "enabled": false,
+      "every": 3,
+      "seconds": 4
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "hero": {
+    "source": "template"
+  },
+  "enemy": {
+    "source": "template"
+  },
+  "pickup": {
+    "source": "template"
+  },
+  "background": {
+    "source": "template"
+  }
+}
