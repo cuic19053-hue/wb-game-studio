@@ -3,21 +3,36 @@
  * wb-game-studio - zero-dependency game project tool for WorkBuddy.
  *
  * Commands:
- *   create   --dir DIR --template collector|voxel [--title T] [--rules JSON] [--slots JSON] [--force]
- *   build    --dir DIR [--note TEXT]
- *   export   --dir DIR [--out FILE]
- *   list     [--root DIR]
- *   versions --dir DIR
- *   restore  --dir DIR --id BUILDID
+ *   create      --dir DIR --template collector|voxel [--title T] [--rules JSON] [--slots JSON]
+ *               [--orientation portrait|landscape] [--lang zh|en] [--force]
+ *   build       --dir DIR [--note TEXT]
+ *   playtest    --dir DIR [--seconds N] [--portrait] [--characters]
+ *   asset       <generate|stage|apply|revert|list> --dir DIR --slot NAME [options]
+ *   versions    --dir DIR
+ *   restore     --dir DIR --id BUILDID
+ *   export      --dir DIR [--out FILE]
+ *   share       --dir DIR [--seconds N] [--port N] [--no-wait]
+ *   list        [--root DIR]
+ *   wall        [--root DIR] [--filter 2d|3d|all] [--sort recent|versions|name] [--out FILE]
+ *   export-wall (alias of wall)
+ *   locale
  *
  * All commands print one JSON object to stdout. Run with `env -u NODE_OPTIONS`
  * on machines where the WorkBuddy sandbox shim intercepts directory creation.
  */
-import { cp, copyFile, mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises'
+import { cp, copyFile, mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { dirname, extname, join, relative, resolve } from 'node:path'
+import { dirname, extname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { runPlaytest } from './playtest.mjs'
+import {
+  stageCandidate, listCandidates, applyCandidate, revertSlot,
+  generateOpenai, generateCodex, builtinHandoff, costCard,
+} from './assets.mjs'
+import { startShare } from './share.mjs'
+import { buildWall, scanGames } from './wall.mjs'
+import { localize, LANGS } from './i18n.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const TEMPLATES = join(ROOT, 'assets', 'templates')
@@ -29,15 +44,22 @@ const CSP = [
   "default-src 'none'",
   'img-src data: blob:',
   'media-src data: blob:',
-  "font-src data:",
+  'font-src data:',
   "style-src 'unsafe-inline'",
   "script-src 'unsafe-inline'",
   "connect-src 'none'",
   "form-action 'none'",
 ].join('; ')
 
-const STYLE = 'html,body{margin:0;height:100%;overflow:hidden;background:#000}'
+const BASE_STYLE = 'html,body{margin:0;height:100%;overflow:hidden;background:#000}'
   + 'canvas{display:block;width:100vw;height:100vh;touch-action:none;outline:none}'
+
+function styleFor(orientation) {
+  if (orientation !== 'portrait') return BASE_STYLE
+  return BASE_STYLE
+    + 'body{display:flex;align-items:center;justify-content:center}'
+    + '#game{width:min(100vw,56.25vh)!important;height:min(100vh,177.78vw)!important}'
+}
 
 class StudioError extends Error {
   constructor(message, code = 'ERROR') {
@@ -154,6 +176,8 @@ async function renderHtml(dir, manifest) {
   let code
   try { code = await readFile(join(dir, 'game.js'), 'utf8') }
   catch { throw new StudioError('game.js 不存在', 'MISSING_CODE') }
+  const lang = manifest.lang || 'zh'
+  code = localize(code, lang)
 
   let runtime = null
   if ((manifest.runtime || []).includes('three')) {
@@ -161,21 +185,24 @@ async function renderHtml(dir, manifest) {
     catch { throw new StudioError('缺少 assets/vendor/three.min.js，3D 模板无法构建', 'MISSING_RUNTIME') }
   }
 
+  const orientation = manifest.orientation === 'portrait' ? 'portrait' : 'landscape'
   const game = {
     title: manifest.title || 'Untitled game',
     rules: manifest.rules || {},
     slots,
     assets,
+    orientation,
+    lang,
   }
   const lines = [
     '<!doctype html>',
-    '<html><head><meta charset="utf-8">',
+    `<html lang="${escapeHtml(lang)}"><head><meta charset="utf-8">`,
     '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">',
     `<meta http-equiv="Content-Security-Policy" content="${CSP}">`,
     `<title>${escapeHtml(game.title)}</title>`,
-    `<style>${STYLE}</style></head><body><canvas id="game" tabindex="0"></canvas>`,
+    `<style>${styleFor(orientation)}</style></head><body><canvas id="game" tabindex="0"></canvas>`,
   ]
-  if (runtime) lines.push(`<script>${inlineSafe(runtime)}</script>`)
+  if (runtime) lines.push(`<script id="wb-three-runtime">${inlineSafe(runtime)}</script>`)
   lines.push(
     `<script>window.GAME=${inlineSafe(JSON.stringify(game))};</script>`,
     `<script>${inlineSafe(code)}</script>`,
@@ -210,6 +237,10 @@ async function recordVersion(dir, buildId, note, bytes) {
   return { history, saved: true }
 }
 
+function dirOf(a) {
+  return a.dir ? resolve(String(a.dir)) : resolve(process.cwd())
+}
+
 const COMMANDS = {
   async create(a) {
     const dir = a.dir ? resolve(String(a.dir)) : null
@@ -237,18 +268,20 @@ const COMMANDS = {
       }
     }
     if (a.orientation) manifest.orientation = String(a.orientation)
+    if (a.lang) manifest.lang = String(a.lang)
     await atomicWrite(join(dir, 'game.json'), `${JSON.stringify(manifest, null, 2)}\n`)
     const ledger = Object.fromEntries(Object.keys(manifest.slots).map((k) => [k, { source: 'template' }]))
     await atomicWrite(join(dir, 'assets', 'ASSETS.json'), `${JSON.stringify(ledger, null, 2)}\n`)
     return {
       ok: true, command: 'create', dir, template, title: manifest.title,
+      orientation: manifest.orientation || 'landscape', lang: manifest.lang || 'zh',
       slots: Object.keys(manifest.slots),
       next: `env -u NODE_OPTIONS node ${join(ROOT, 'scripts', 'studio.mjs')} build --dir ${dir}`,
     }
   },
 
   async build(a) {
-    const dir = a.dir ? resolve(String(a.dir)) : resolve(process.cwd())
+    const dir = dirOf(a)
     const manifest = await loadManifest(dir)
     const html = await renderHtml(dir, manifest)
     const bytes = Buffer.byteLength(html)
@@ -267,14 +300,72 @@ const COMMANDS = {
       artifact: projectPaths(dir).artifact,
       title: manifest.title,
       runtime: manifest.runtime || [],
+      orientation: manifest.orientation || 'landscape',
+      lang: manifest.lang || 'zh',
       versionSaved: saved,
       versions: history.length,
       customSlots,
     }
   },
 
+  async playtest(a) {
+    const dir = dirOf(a)
+    const artifact = projectPaths(dir).artifact
+    if (!existsSync(artifact)) throw new StudioError('还没有 dist/index.html，请先 build', 'NOT_BUILT')
+    return runPlaytest({
+      dir, artifact,
+      seconds: Number(a.seconds || 8),
+      portrait: a.portrait === true,
+      characters: a.characters === true,
+    })
+  },
+
+  async asset(a) {
+    const sub = String(a._[1] || '')
+    const dir = dirOf(a)
+    const slot = a.slot ? String(a.slot) : undefined
+    const count = Math.max(1, Math.min(4, Number(a.count || 2)))
+    const prompt = a.prompt ? String(a.prompt) : undefined
+    if (!['generate', 'stage', 'apply', 'revert', 'list'].includes(sub)) {
+      throw new StudioError('asset 子命令: generate | stage | apply | revert | list', 'BAD_ARGS')
+    }
+    if (sub !== 'list' && !slot) throw new StudioError('asset 需要 --slot', 'BAD_ARGS')
+
+    if (sub === 'stage') {
+      if (!a.file) throw new StudioError('asset stage 需要 --file', 'BAD_ARGS')
+      return stageCandidate({ dir, slot, file: resolve(String(a.file)), label: a.label ? String(a.label) : undefined, prompt, source: a.source ? String(a.source) : 'external' })
+    }
+    if (sub === 'list') return listCandidates({ dir, slot })
+    if (sub === 'apply') {
+      const result = await applyCandidate({ dir, slot, number: a.number })
+      const built = await COMMANDS.build({ dir, note: `应用 ${slot} 美术` })
+      return { ...result, rebuilt: { buildId: built.buildId, bytes: built.bytes, customSlots: built.customSlots } }
+    }
+    if (sub === 'revert') {
+      const result = await revertSlot({ dir, slot })
+      const built = await COMMANDS.build({ dir, note: `回退 ${slot} 美术` })
+      return { ...result, rebuilt: { buildId: built.buildId, bytes: built.bytes, customSlots: built.customSlots } }
+    }
+
+    const provider = String(a.provider || 'auto')
+    if (provider === 'builtin' || (provider === 'auto' && !process.env.OPENAI_API_KEY)) {
+      return builtinHandoff({ dir, slot, count, prompt })
+    }
+    if (provider === 'codex') {
+      return generateCodex({ dir, slot, count, prompt, command: a.command ? String(a.command) : undefined, timeoutMinutes: Number(a['timeout-minutes'] || 15) })
+    }
+    return generateOpenai({
+      dir, slot, count, prompt,
+      reference: a.reference ? resolve(String(a.reference)) : undefined,
+      model: a.model ? String(a.model) : undefined,
+      baseUrl: a['base-url'] ? String(a['base-url']) : undefined,
+      credential: a.credential ? String(a.credential) : undefined,
+      yes: a.yes === true,
+    })
+  },
+
   async export(a) {
-    const dir = a.dir ? resolve(String(a.dir)) : resolve(process.cwd())
+    const dir = dirOf(a)
     const manifest = await loadManifest(dir)
     const src = projectPaths(dir).artifact
     if (!existsSync(src)) throw new StudioError('还没有 dist/index.html，请先 build', 'NOT_BUILT')
@@ -294,37 +385,35 @@ const COMMANDS = {
     }
   },
 
+  async share(a) {
+    const dir = dirOf(a)
+    const seconds = Number(a.seconds || 1800)
+    const info = await startShare({
+      dir, artifact: projectPaths(dir).artifact,
+      seconds, port: Number(a.port || 0),
+    })
+    const printable = { ...info, qrSvg: undefined }
+    process.stdout.write(`${JSON.stringify(printable, null, 2)}\n`)
+    if (a['no-wait'] !== true) await info.wait()
+    await info.close()
+    return null
+  },
+
   async list(a) {
     const root = a.root ? resolve(String(a.root)) : resolve(process.cwd())
-    const found = []
-    async function walk(dir, depth) {
-      if (depth > 4 || found.length >= 60) return
-      let entries
-      try { entries = await readdir(dir, { withFileTypes: true }) } catch { return }
-      if (entries.some((e) => e.name === 'game.json')) {
-        try {
-          const m = await readJson(join(dir, 'game.json'))
-          found.push({
-            dir: relative(root, dir) || '.',
-            title: m.title || '(untitled)',
-            kind: (m.runtime || []).includes('three') ? '3D' : '2D',
-            built: existsSync(join(dir, 'dist', 'index.html')),
-            artifact: existsSync(join(dir, 'dist', 'index.html')) ? join(dir, 'dist', 'index.html') : null,
-          })
-        } catch { /* skip broken projects */ }
-        return
-      }
-      for (const e of entries) {
-        if (!e.isDirectory() || e.name.startsWith('.') || e.name === 'node_modules') continue
-        await walk(join(dir, e.name), depth + 1)
-      }
+    const games = await scanGames(root)
+    return {
+      ok: true, command: 'list', root, count: games.length,
+      games: games.map((g) => ({
+        dir: g.dir, title: g.title, kind: g.kind, built: g.built,
+        versions: g.versions, artifact: g.built ? g.artifact : null,
+        cover: g.cover,
+      })),
     }
-    await walk(root, 0)
-    return { ok: true, command: 'list', root, count: found.length, games: found }
   },
 
   async versions(a) {
-    const dir = a.dir ? resolve(String(a.dir)) : resolve(process.cwd())
+    const dir = dirOf(a)
     let history = []
     try { history = JSON.parse(await readFile(projectPaths(dir).versionsJson, 'utf8')) }
     catch { /* none yet */ }
@@ -332,7 +421,7 @@ const COMMANDS = {
   },
 
   async restore(a) {
-    const dir = a.dir ? resolve(String(a.dir)) : resolve(process.cwd())
+    const dir = dirOf(a)
     const id = String(a.id || '')
     if (!/^[0-9a-f]{12}$/u.test(id)) throw new StudioError('restore 需要 --id（12 位构建号）', 'BAD_ARGS')
     const snap = projectPaths(dir).versionDir(id)
@@ -345,6 +434,30 @@ const COMMANDS = {
     await atomicWrite(projectPaths(dir).artifact, html)
     return { ok: true, command: 'restore', dir, id, rebuilt: projectPaths(dir).artifact, bytes: Buffer.byteLength(html) }
   },
+
+  async wall(a) {
+    return COMMANDS['export-wall']({ ...a, _: ['export-wall'] })
+  },
+
+  async 'export-wall'(a) {
+    const root = a.root ? resolve(String(a.root)) : resolve(process.cwd())
+    const out = a.out ? resolve(String(a.out)) : join(root, 'wall.html')
+    return buildWall({
+      root, out,
+      filter: String(a.filter || 'all'),
+      sort: String(a.sort || 'recent'),
+      title: String(a.title || 'My games'),
+    })
+  },
+
+  async locale() {
+    const files = {}
+    for (const lang of LANGS) {
+      try { files[lang] = JSON.parse(await readFile(join(ROOT, 'locale', `${lang}.json`), 'utf8')) }
+      catch { files[lang] = null }
+    }
+    return { ok: true, command: 'locale', default: 'zh', languages: LANGS, files }
+  },
 }
 
 async function main() {
@@ -354,7 +467,10 @@ async function main() {
     throw new StudioError(`用法: studio.mjs <${Object.keys(COMMANDS).join('|')}> [--dir DIR] [选项]`, 'BAD_ARGS')
   }
   const result = await COMMANDS[command](args)
-  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  if (result !== null) {
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+    if (result.ok === false) process.exitCode = 1
+  }
 }
 
 main().catch((error) => {

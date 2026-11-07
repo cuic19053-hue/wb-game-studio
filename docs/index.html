@@ -23,6 +23,13 @@
   h2 { font-size: 17px; font-weight: 600; margin: 0 0 6px; }
   p { margin: 0; color: #5b6572; font-size: 13px; }
   .play { display: inline-block; margin-top: 14px; font-size: 13px; color: #185fa5; }
+  h2.section { font-size: 19px; font-weight: 600; margin: 44px 0 14px; }
+  .feature { display: flex; gap: 22px; align-items: center; background: #fff;
+             border: 1px solid #e4e7ec; border-radius: 14px; padding: 18px; }
+  .feature img { width: 150px; height: 150px; object-fit: cover; border-radius: 10px;
+                 flex: none; background: #eef0f3; }
+  .feature ul { margin: 8px 0 0; padding-left: 20px; color: #5b6572; font-size: 13px; }
+  .feature li { margin: 4px 0; }
   footer { margin-top: 40px; color: #8a939f; font-size: 13px; }
   code { background: #eef0f3; border-radius: 4px; padding: 1px 5px; font-size: 12px; }
 </style>
@@ -50,9 +57,34 @@
         <span class="play">开始试玩 →</span>
       </div>
     </a>
+    <a class="card" href="wall.html">
+      <img src="screenshots/wall.png" alt="离线游戏墙">
+      <div class="body">
+        <span class="tag">游戏墙 · wall</span>
+        <h2>一个页面收纳全部游戏</h2>
+        <p>点击卡片全窗口试玩，Esc 返回；多个 3D 游戏共享一份 three.js。</p>
+        <span class="play">打开游戏墙 →</span>
+      </div>
+    </a>
   </div>
+
+  <h2 class="section">不止于「生成」</h2>
+  <div class="feature">
+    <img src="screenshots/hero-ai.png" alt="AI 生成的角色候选">
+    <div>
+      <p style="margin:0 0 6px;color:#1c1f23;font-weight:600">AI 美术候选，按编号替换与回退</p>
+      <ul>
+        <li>自动试玩：无头 Chrome 驱动，采样分数、生命、fps、脚本错误，产出截图与封面。</li>
+        <li>AI 美术：内置图像生成 / OpenAI / Codex 三通道，自动抠浅色背景并缩放，按编号应用或回退。</li>
+        <li>版本快照：每次构建自动存档，代码 + 规则 + 美术一起回滚。</li>
+        <li>横竖屏与中英界面，临时只读局域网分享链接与二维码。</li>
+        <li>零 npm 运行时依赖，只用 Node 22 标准库与本机浏览器 DevTools 协议。</li>
+      </ul>
+    </div>
+  </div>
+
   <footer>
-    两个页面都是 <code>build</code> 产出的自包含 HTML（约 45 KB / 740 KB），可另存到本地双击打开。<br>
+    三个页面都是 <code>build</code> / <code>wall</code> 产出的自包含 HTML（约 45 KB / 740 KB / 831 KB），可另存到本地双击打开。<br>
     项目源码与文档见仓库 README · MIT License
   </footer>
 </main>

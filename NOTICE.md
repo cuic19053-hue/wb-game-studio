@@ -26,6 +26,24 @@
 - `examples/` 下的两个游戏由本工具从模板生成，游戏逻辑沿用上游模板（MIT）。
 - `docs/screenshots/` 为本地无头 Chrome 实测截图。
 
+## qrcode-generator（MIT）
+
+- **qrcode-generator 2.0.4** — https://github.com/kazuhikoarase/qrcode-generator — MIT License
+- 文件：`assets/vendor/qrcode.js`（`dist/qrcode.js` 构建，56 KB，UMD）
+- Copyright (c) 2009 Kazuhiko Arase
+- 用于 `share` 命令把临时局域网链接生成二维码 SVG。
+
+## AI 生成的演示素材
+
+- `docs/screenshots/hero-ai.png` 由内置图像生成产出，用于演示 `asset stage` 的透明底检查、自动去背与编号候选流程。
+- 它是展示素材，**不参与任何游戏构建**；`examples/` 里的游戏默认仍使用上游模板的 SVG 素材。
+
+## 实现差异说明
+
+- 浏览器能力（自动试玩、图片解码与去背）使用 Node 22 内置 WebSocket 驱动本机 Chrome DevTools 协议，**未引入 Playwright / puppeteer**；上游 `playtest.ts` 以 `playwright-core` 作为运行时依赖。
+- 上游的 `pngjs` / `undici` 由 Node 标准库、浏览器 Canvas 与 curl 传输层替代；three.js 与 qrcode-generator 仍为随仓库分发的 MIT 组件。
+- 上游的 DSH 工具注册、`cordis.patch.yml`、React 侧边栏与 TypeScript/esbuild 构建体系均未沿用。
+
 ## 许可证
 
 本项目整体采用 MIT，完整条款见 [LICENSE](LICENSE)。上述第三方组件的版权与许可声明在此一并保留。
