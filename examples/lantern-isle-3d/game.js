@@ -81,7 +81,7 @@
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.0;
+  renderer.toneMappingExposure = 1.14;
   renderer.setClearColor(0x000000, 0);
   canvas.style.background = 'linear-gradient(to bottom,' + R.palette.skyTop + ' 0%,' + R.palette.skyTop + ' 18%,' + R.palette.skyBottom + ' 100%)';
 
@@ -298,7 +298,7 @@
   scene.add(floor);
 
   // Lights: a cool sky, a warm low sun, and a hint of fill.
-  scene.add(new THREE.HemisphereLight('#8a8cff', '#4a3428', 0.95));
+  scene.add(new THREE.HemisphereLight('#9a9cff', '#5a4034', 1.2));
   var sun = new THREE.DirectionalLight('#ffb27a', 2.5);
   sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024);
@@ -449,8 +449,12 @@
   var FONT = 'font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;';
   var hud = el('div', 'position:fixed;inset:0;pointer-events:none;user-select:none;color:#fff;' + FONT
     + 'font-size:clamp(14px,2.4vmin,22px);text-shadow:0 2px 6px rgba(0,0,0,.45)');
-  var pillCss = 'position:absolute;top:2.2vmin;padding:.45em .9em;border-radius:999px;background:rgba(14,18,40,.42);'
-    + 'border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(6px);display:flex;gap:.6em;align-items:center;font-weight:700';
+  // Soft edge vignette (drawn first, under everything) pulls the eye to the island.
+  el('div', 'position:absolute;inset:0;background:radial-gradient(ellipse at 50% 46%,rgba(0,0,0,0) 52%,rgba(8,10,30,.42) 100%)', hud);
+  el('style', '', document.head).textContent = '@keyframes wbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}'
+    + '@media (prefers-reduced-motion:reduce){.wb-cta{animation:none!important}}';
+  var pillCss = 'position:absolute;top:2.2vmin;padding:.45em .9em;border-radius:999px;background:rgba(14,18,40,.5);'
+    + 'border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(6px);box-shadow:0 4px 16px rgba(0,0,0,.28);display:flex;gap:.6em;align-items:center;font-weight:700';
   var leftPill = el('div', pillCss + ';left:2.2vmin', hud);
   var heartsEl = el('span', 'color:#ff8a9a;letter-spacing:.08em', leftPill);
   var scoreEl = el('span', '', leftPill);
@@ -458,15 +462,19 @@
   var shieldEl = el('div', 'position:absolute;left:2.2vmin;top:calc(2.2vmin + 2.6em);padding:.3em .8em;border-radius:999px;'
     + 'background:rgba(120,220,255,.25);border:1px solid rgba(160,235,255,.5);font-size:.8em;font-weight:700;display:none', hud);
   var card = el('div', 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:min(86vw,560px);'
-    + 'padding:1.4em 1.2em;border-radius:22px;background:rgba(14,16,38,.5);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(8px)', hud);
-  var cardTitle = el('div', 'font-size:2.3em;font-weight:800;letter-spacing:.02em;color:#ffe2a8;line-height:1.15', card);
+    + 'padding:1.6em 1.3em 1.5em;border-radius:26px;background:linear-gradient(180deg,rgba(40,44,86,.62),rgba(14,16,38,.58));'
+    + 'border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(10px);box-shadow:0 18px 50px rgba(0,0,0,.4)', hud);
+  var cardTitle = el('div', 'font-size:2.3em;font-weight:800;letter-spacing:.02em;color:#ffe2a8;line-height:1.15;text-shadow:0 3px 14px rgba(0,0,0,.5)', card);
   var cardBody = el('div', 'margin-top:.55em;opacity:.95;line-height:1.5', card);
-  var cardHint = el('div', 'margin-top:1em;font-weight:700;color:#fff3cf', card);
+  var cardHint = el('div', 'margin-top:1.15em;padding:.55em 1.5em;border-radius:999px;font-weight:800;color:#3a2410;text-shadow:none;'
+    + 'background:linear-gradient(180deg,#ffe08a,#f2a93b);box-shadow:0 6px 20px rgba(255,190,70,.4);animation:wbPulse 1.6s ease-in-out infinite', card);
+  cardHint.className = 'wb-cta';
   function showCard(title, body, hint) {
     card.style.display = 'block';
     cardTitle.textContent = title;
     cardBody.textContent = body;
     cardHint.textContent = hint;
+    cardHint.style.display = hint ? 'inline-block' : 'none';
   }
 
   /* 8. GAME STATE */
