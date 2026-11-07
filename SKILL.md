@@ -1,8 +1,8 @@
 ---
 name: wb-game-studio
-description: 用一句话生成可在 WorkBuddy 里直接试玩的小游戏：2D/3D 模板、自动试玩、AI 美术候选与替换、版本回滚、横竖屏与中英界面、游戏墙、局域网分享，最终导出单个离线 HTML。当用户要求「做个小游戏 / 生成游戏 / 一句话做游戏 / 自动试玩一下 / 换个角色图 / 看看我的游戏 / 导出 HTML / 回到上一版」时使用。也适用于用游戏做教学演示、课堂案例或内容素材。This skill should be used when the user asks for a small playable game from a plain-language description, or wants to build, playtest, restyle, preview, version, share or export an existing game project.
+description: 用一句话生成可在 WorkBuddy 里直接试玩的小游戏：2D/3D 模板、自动试玩、AI 美术候选与替换、版本回滚、横竖屏与中英界面、游戏墙、局域网分享，最终导出单个离线 HTML。当用户要求「做个小游戏 / 生成游戏 / 一句话做游戏 / 自动试玩一下 / 换个角色图 / 把游戏弄好看点 / 美化界面 / 看看我的游戏 / 导出 HTML / 回到上一版」时使用。也适用于用游戏做教学演示、课堂案例或内容素材。This skill should be used when the user asks for a small playable game from a plain-language description, or wants to build, playtest, restyle, preview, version, share or export an existing game project.
 agent_created: true
-version: 0.2.0
+version: 0.3.0
 license: MIT
 ---
 
@@ -19,6 +19,9 @@ license: MIT
 4. **预览走结果区**：把 `dist/index.html` 作为 HTML 产物打开，可在右侧内置浏览器直接玩、可刷新。
 5. **AI 美术生成会额外消耗积分**（每张约 5–10 积分）。用内置图像生成前，先告知用户；用户没要求换美术时不要主动生成。
 6. **OpenAI 出图必须走审批**：`asset generate --provider openai` 默认只返回花费卡片，加 `--yes` 才真正发请求。绝不替用户跳过审批。
+7. **画面必须亲眼看过才算验收**。`playtest` 通过只说明跑得动，不说明好看。交付前用 Read 打开 `screenshot` 与 `characters` 里的图，按下方「画面验收清单」逐条过；不合格先改再交，不要把「能跑」当成「做好了」。
+8. **角色美术必须和用户说的角色一致**。模板自带的 `hero.svg` 是戴帽子的探险男孩、`enemy.svg` / `pickup.svg` 也是通用造型。用户要的是狐狸就必须画狐狸，不能带着男孩交付（见 G2）。
+9. **用户给了需求就直接开做**，不要先列一堆问题；信息缺失时取最合理的默认值，并在交付时说明做了什么假设。
 
 ## 路径与命令
 
@@ -65,6 +68,15 @@ env -u NODE_OPTIONS node "$STUDIO" create --dir "$PWD/games/fox" --template coll
 改 `game.js` 局部（角色造型、关卡、屏幕、特殊规则），保持 `window.__gameState()` / `window.__renderSlots()` 存在（契约见 `references/game-contract.md`）。
 `build` 后把返回的 `artifact` 作为 HTML 产物打开预览。检查 `bytes`、`runtime`、`customSlots`、`orientation`、`lang`。
 
+**角色美术（每次都要做，不是 G4 的可选项）**：`create` 之后 `customSlots` 为空，意味着三个角色还是模板通用造型。按用户原话重画 `assets/hero.svg`、`enemy.svg`、`pickup.svg`（背景可沿用），再 `build`，`customSlots` 应包含它们。SVG 规范，保持与模板一致才不会风格打架：
+- `viewBox="0 0 256 256"`，透明底，主体居中，脚下放一个 `opacity≈.35` 的椭圆阴影。
+- 扁平卡通 + 深色描边（模板用 `#2b1b12`，`stroke-width` 7–8，`stroke-linejoin="round"`），大色块、少渐变、不放文字。
+- 先画后层（尾巴、耳朵），再画身体、头，最后画五官；腮红用低透明度圆点增加亲和力。
+- 画完用本机 Chrome 截成 PNG 自己看一眼（`google-chrome --headless=new --screenshot=...`），形状错位就改，不要盲交。
+
+**2D 界面样式**：模板已提供 `glass()`（半透明面板/胶囊）、`softText()`（带柔和阴影的文字）、`ctaButton()`（金色开始按钮）、`dim()`（径向暗角）。改标题屏、结算屏、HUD 时复用它们，保持整套界面一致；不要退回到「文字直接画在场景上」。
+**改文案的坑**：英文界面靠 `scripts/i18n.mjs` 的字符串替换实现，源码里的中文文案必须和 `PAIRS` 里的原文逐字一致。新增或修改界面文案时，同步在 `PAIRS` 里加对应英文，否则 `--lang en` 会漏翻。
+
 **G3 · 自动试玩验收**
 
 ```sh
@@ -72,9 +84,17 @@ env -u NODE_OPTIONS node "$STUDIO" playtest --dir "$PWD/games/fox" --seconds 8 -
 ```
 
 看 `phases`（title→playing→won/lost）、`bestScore`、`fps`、`errorCount`、`screenshot`、`cover`。
-3D 首次 WebGL 初始化可能要 3–4 秒，脚本会等 `__gameState` 就绪再计时。
+3D 首次 WebGL 初始化可能要 3–4 秒，脚本会等 `__gameState` 就绪再计时。无显卡的机器/容器走软件渲染，3D 的 `fps` 只有个位数到十几是正常的，不代表游戏有问题，不要为此去改代码；只要 `errorCount` 为 0 且 `phases` 进入 playing 即可。
 非方向键玩法（三消、卡牌、音游、瞄准）自己实现 `window.__autoplay(state)`，试玩会改用它驱动真实循环。
 `errorCount > 0` 或 `phases` 卡在 title 时，先修游戏再继续。
+
+**画面验收清单**（用 Read 看 `screenshot`，加 `--characters` 看角色特写；再用 `google-chrome --headless=new --window-size=960,640 --screenshot=out.png file://.../dist/index.html` 看标题屏）：
+- 标题、分数、倒计时在任何背景上都清晰可读，没有文字直接压在花草/地面上，没有被裁切或重叠。
+- 主角、敌人、收集物一眼能分清，造型与用户描述一致，不是模板默认角色。
+- 收集物有高光或光晕，和背景拉得开；敌人与主角颜色不接近。
+- HUD、面板、按钮的圆角、描边、留白统一；竖屏（`--portrait`）下也不溢出。
+- 英文界面（`--lang en`）下文案没有漏翻、没有撑破面板。
+任何一条不过，改完重新 `build` + `playtest`，再看一次图。
 
 **G4 · AI 美术（用户要求时才做）**
 
@@ -132,6 +152,8 @@ env -u NODE_OPTIONS node "$STUDIO" export-wall --root "$PWD/games" --filter all 
 | 角色还是代码画的 | 看 `build` 的 `customSlots`；素材与模板原文件一致就不会标记 custom |
 | 候选有白框 | `asset stage` 会自动抠浅色背景；深色背景请换透明底图 |
 | 预览空白 | 打开的是 `game.js` / `dev.html`，不是 `dist/index.html` |
+| 英文界面有中文残留 | 新文案没加进 `scripts/i18n.mjs` 的 `PAIRS`，或源码里的写法与原文不逐字一致 |
+| 交付的主角和用户说的不一样 | 没重画 `assets/hero.svg`，`customSlots` 为空；见 G2「角色美术」 |
 | `share` 卡住对话 | 这是长驻服务，用后台任务运行或加 `--seconds` 短时限 |
 | 想回到上一版 | `versions` 取构建号 → `restore --id ...`（代码/规则/美术一起恢复并自动重建） |
 
