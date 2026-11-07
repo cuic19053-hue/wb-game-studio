@@ -9,6 +9,8 @@ Describe a small game in plain words, build it from a template, play it locally,
 |---|---|
 | ![2D 示例](docs/screenshots/2d.png) | ![3D 示例](docs/screenshots/3d.png) |
 
+**在线试玩**：[游戏墙](https://cuic19053-hue.github.io/wb-game-studio/) · [2D 月夜狐·提灯](https://cuic19053-hue.github.io/wb-game-studio/2d.html) · [3D 体素岛·提灯](https://cuic19053-hue.github.io/wb-game-studio/3d.html)
+
 ## 这是什么
 
 一个**平台无关的小游戏构建工具链**：核心是 `scripts/studio.mjs`（367 行、只用 Node 标准库），负责从模板创建项目、把 `game.json` / `game.js` / 图片内联打包成单文件 HTML、管理版本快照、校验离线、导出交付文件。
