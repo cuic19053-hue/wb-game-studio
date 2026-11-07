@@ -1,5 +1,7 @@
 # wb-game-studio
 
+[![check](https://github.com/cuic19053-hue/wb-game-studio/actions/workflows/check.yml/badge.svg)](https://github.com/cuic19053-hue/wb-game-studio/actions/workflows/check.yml) · MIT · Node 22+ · 零依赖
+
 > 一句话描述小游戏 → 生成可玩的 2D / 3D 游戏 → 导出**单个离线 HTML 文件**。
 > 零第三方依赖、免登录、免 API key、全程本地运行，产物不发任何网络请求。
 
