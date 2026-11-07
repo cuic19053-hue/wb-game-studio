@@ -18,6 +18,7 @@
        background-clip: text; color: transparent; }
   p.lead { color: var(--muted); font-size: 16px; margin: 0 0 40px; max-width: 620px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 22px; }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
   a.card { display: block; background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
            overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 8px 24px rgba(0,0,0,.3);
            transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
@@ -67,6 +68,15 @@
         <span class="play">开始试玩 →</span>
       </div>
     </a>
+    <a class="card" href="life.html">
+      <img src="screenshots/life.png" alt="人生模拟器画面">
+      <div class="body">
+        <span class="tag">人生模拟 · lifesim</span>
+        <h2>我的人生模拟器</h2>
+        <p>从五年级一路成长到高考：安排时间、遇到事件、迎接大考，看看你能考上哪所大学。</p>
+        <span class="play">开始试玩 →</span>
+      </div>
+    </a>
     <a class="card" href="wall.html">
       <img src="screenshots/wall.png" alt="离线游戏墙">
       <div class="body">
@@ -94,7 +104,7 @@
   </div>
 
   <footer>
-    三个页面都是 <code>build</code> / <code>wall</code> 产出的自包含 HTML（约 48 KB / 724 KB / 888 KB），可另存到本地双击打开。<br>
+    四个页面都是 <code>build</code> / <code>wall</code> 产出的自包含 HTML（约 48 KB / 724 KB / 56 KB / 1 MB），可另存到本地双击打开。<br>
     项目源码与文档见仓库 README · MIT License
   </footer>
 </main>

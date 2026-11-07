@@ -165,6 +165,45 @@ test('3D voxel: three.js is inlined and the build stays offline', async (t) => {
   assert.equal(run('export', '--dir', dir, '--out', join(root, 'isle.html')).offline, true)
 })
 
+test('life simulator: create with rules, build one offline HTML', async (t) => {
+  const root = await workspace()
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const dir = join(root, 'life')
+
+  const created = run('create', '--dir', dir, '--template', 'lifesim', '--title', '我的人生模拟器',
+    '--rules', '{"name":"小红","startGrade":5,"dream":"北京大学","hobby":"跳舞"}')
+  assert.equal(created.ok, true)
+  assert.equal(created.template, 'lifesim')
+  assert.deepEqual(created.slots, ['hero'])
+
+  const built = run('build', '--dir', dir)
+  assert.equal(built.ok, true)
+  assert.ok(built.bytes > 20000 && built.bytes < 200000, `unexpected lifesim size: ${built.bytes}`)
+  const html = await readFile(built.artifact, 'utf8')
+  for (const needle of HTML_MUST_HAVE) assert.ok(html.includes(needle), `missing ${needle}`)
+  for (const needle of ['小红', '北京大学', '跳舞']) assert.ok(html.includes(needle), `rule did not reach the page: ${needle}`)
+  assert.doesNotMatch(html, NO_EXTERNAL)
+  assert.equal(run('export', '--dir', dir).offline, true)
+})
+
+test('playtest: life simulator plays itself from grade 5 to the university result',
+  { skip: skipBrowser }, async (t) => {
+    const root = await workspace()
+    t.after(() => rm(root, { recursive: true, force: true }))
+    const dir = join(root, 'lifeplay')
+    run('create', '--dir', dir, '--template', 'lifesim', '--title', 'Life playtest', '--rules', '{"seed":7}')
+    run('build', '--dir', dir)
+
+    const report = run('playtest', '--dir', dir, '--seconds', '8', '--characters')
+    assert.equal(report.ok, true)
+    assert.equal(report.autoplay, true, 'lifesim must provide window.__autoplay')
+    assert.equal(report.errorCount, 0, `script errors: ${JSON.stringify(report.errors)}`)
+    const phases = report.phases.map((p) => p.phase)
+    assert.ok(phases.includes('playing') && phases.includes('won'), `never reached the ending: ${phases}`)
+    assert.ok(report.bestScore >= 200, `no gaokao score reported: ${report.bestScore}`)
+    assert.ok((await stat(report.screenshot)).size > 0)
+  })
+
 test('custom art is detected by hashing slot files, no registration needed', async (t) => {
   const root = await workspace()
   t.after(() => rm(root, { recursive: true, force: true }))

@@ -95,7 +95,7 @@ node "$STUDIO" export   --dir ./games/fox
 
 | 命令 | 作用 | 主要参数 |
 |---|---|---|
-| `create` | 从模板新建项目 | `--dir`、`--template collector\|voxel`、`--title`、`--rules JSON`、`--slots JSON`、`--orientation`、`--lang zh\|en`、`--force` |
+| `create` | 从模板新建项目 | `--dir`、`--template collector\|voxel\|lifesim`、`--title`、`--rules JSON`、`--slots JSON`、`--orientation`、`--lang zh\|en`、`--force` |
 | `build` | 构建单文件 HTML + 版本快照 | `--dir`、`--note` |
 | `playtest` | 无头浏览器自动试玩 | `--dir`、`--seconds`、`--portrait`、`--characters` |
 | `asset generate` | 生成编号美术候选 | `--slot`、`--provider builtin\|openai\|codex\|auto`、`--count 1-4`、`--prompt`、`--reference`、`--yes` |
@@ -163,7 +163,7 @@ wb-game-studio/
 │   └── i18n.mjs                 # 中英界面替换
 ├── references/game-contract.md  # window.GAME / __gameState 契约
 ├── assets/
-│   ├── templates/{collector,voxel}/  # 2D / 3D 模板 + SVG 素材
+│   ├── templates/{collector,voxel,lifesim}/  # 2D / 3D / 人生模拟 模板 + SVG 素材
 │   └── vendor/{three.min.js,qrcode.js}
 ├── locale/{zh,en}.json
 ├── examples/                    # 两个可直接打开的单文件示例

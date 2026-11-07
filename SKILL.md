@@ -1,8 +1,8 @@
 ---
 name: wb-game-studio
-description: 用一句话生成可在 WorkBuddy 里直接试玩的小游戏：2D/3D 模板、自动试玩、AI 美术候选与替换、版本回滚、横竖屏与中英界面、游戏墙、局域网分享，最终导出单个离线 HTML。当用户要求「做个小游戏 / 生成游戏 / 一句话做游戏 / 自动试玩一下 / 换个角色图 / 把游戏弄好看点 / 美化界面 / 看看我的游戏 / 导出 HTML / 回到上一版」时使用。也适用于用游戏做教学演示、课堂案例或内容素材。This skill should be used when the user asks for a small playable game from a plain-language description, or wants to build, playtest, restyle, preview, version, share or export an existing game project.
+description: 用一句话生成可在 WorkBuddy 里直接试玩的小游戏：2D 收集、3D 体素、人生模拟（选择养成）三种模板，自动试玩、AI 美术候选与替换、版本回滚、横竖屏与中英界面、游戏墙、局域网分享，最终导出单个离线 HTML。当用户要求「做个小游戏 / 生成游戏 / 一句话做游戏 / 自动试玩一下 / 换个角色图 / 做个人生模拟器 / 养成游戏 / 从某年级模拟到考上大学 / 把游戏弄好看点 / 美化界面 / 看看我的游戏 / 导出 HTML / 回到上一版」时使用。也适用于用游戏做教学演示、课堂案例或内容素材。This skill should be used when the user asks for a small playable game from a plain-language description, or wants to build, playtest, restyle, preview, version, share or export an existing game project.
 agent_created: true
-version: 0.3.0
+version: 0.4.0
 license: MIT
 ---
 
@@ -15,7 +15,7 @@ license: MIT
 
 1. **所有脚本命令必须以 `env -u NODE_OPTIONS` 开头**。WorkBuddy 沙箱给 Node 注入的 shim 会拦截「新建目录」，并把拒绝伪装成 `EEXIST: mkdir ...`。
 2. **游戏必须离线自包含**。产物带 `default-src 'none'` CSP，禁止任何网络请求。素材只能构建前落盘并内联成 data URL，不要在 `game.js` 里写 CDN、`fetch`、`import()`。
-3. **不要手写整套游戏**。永远从模板 `create` 起步，再改 `game.json` 的 `rules` 和 `game.js` 的局部逻辑；模板已实现循环、计分、碰撞、界面和 `window.__gameState()` 契约。
+3. **不要手写整套游戏**。永远从模板 `create` 起步（`collector` / `voxel` / `lifesim`），再改 `game.json` 的 `rules` 和 `game.js` 的局部逻辑；模板已实现循环、计分、碰撞、界面和 `window.__gameState()` 契约。
 4. **预览走结果区**：把 `dist/index.html` 作为 HTML 产物打开，可在右侧内置浏览器直接玩、可刷新。
 5. **AI 美术生成会额外消耗积分**（每张约 5–10 积分）。用内置图像生成前，先告知用户；用户没要求换美术时不要主动生成。
 6. **OpenAI 出图必须走审批**：`asset generate --provider openai` 默认只返回花费卡片，加 `--yes` 才真正发请求。绝不替用户跳过审批。
@@ -36,7 +36,7 @@ STUDIO="$S/scripts/studio.mjs"
 
 | 命令 | 作用 | 主要参数 |
 |---|---|---|
-| `create` | 从模板新建项目 | `--dir`、`--template collector\|voxel`、`--title`、`--rules JSON`、`--slots JSON`、`--orientation portrait\|landscape`、`--lang zh\|en`、`--force` |
+| `create` | 从模板新建项目 | `--dir`、`--template collector\|voxel\|lifesim`、`--title`、`--rules JSON`、`--slots JSON`、`--orientation portrait\|landscape`、`--lang zh\|en`、`--force` |
 | `build` | 构建单文件 HTML + 版本快照 | `--dir`、`--note` |
 | `playtest` | 无头浏览器自动试玩，报告阶段/分数/生命/fps/错误 + 截图封面 | `--dir`、`--seconds`、`--portrait`、`--characters` |
 | `asset generate` | 生成编号美术候选（三通道 + 花费审批） | `--dir`、`--slot`、`--provider builtin\|openai\|codex\|auto`、`--count 1-4`、`--prompt`、`--reference`、`--yes` |
@@ -54,7 +54,11 @@ STUDIO="$S/scripts/studio.mjs"
 ## 工作流（逐闸门推进）
 
 **G1 · 解析需求 → create**
-从一句话提取主角、收集物、障碍、场景、胜负条件、时限。出现「3D / 体素 / 立方体 / 岛屿」用 `voxel`，否则 `collector`。
+从一句话提取主角、收集物、障碍、场景、胜负条件、时限。按玩法选模板：
+- 「人生模拟 / 成长 / 养成 / 从几年级到考上大学 / 选择题冒险 / 文字游戏」→ **`lifesim`**（见下方「人生模拟模板」）。
+- 出现「3D / 体素 / 立方体 / 岛屿」→ `voxel`。
+- 其余（收集、躲避、俯视跑图）→ `collector`。
+- 三个模板都不贴切的玩法（卡牌、跑酷、模拟经营…）：先如实说明现有模板的边界，用最接近的一个起步，再改 `game.js`；不要假装做出了没有的东西。
 胜负条件翻译成 `rules`：`duration`、`hearts`、`heroSpeed`、`enemySpeed`、`enemySpawnEvery`、`maxEnemies`、`maxPickups`、`shield.enabled` 等。
 `--slots` 的 `label` 用**用户原话里的中文角色名**；手机竖屏用 `--orientation portrait`，英文界面用 `--lang en`。
 
@@ -68,7 +72,7 @@ env -u NODE_OPTIONS node "$STUDIO" create --dir "$PWD/games/fox" --template coll
 改 `game.js` 局部（角色造型、关卡、屏幕、特殊规则），保持 `window.__gameState()` / `window.__renderSlots()` 存在（契约见 `references/game-contract.md`）。
 `build` 后把返回的 `artifact` 作为 HTML 产物打开预览。检查 `bytes`、`runtime`、`customSlots`、`orientation`、`lang`。
 
-**角色美术（每次都要做，不是 G4 的可选项）**：`create` 之后 `customSlots` 为空，意味着三个角色还是模板通用造型。按用户原话重画 `assets/hero.svg`、`enemy.svg`、`pickup.svg`（背景可沿用），再 `build`，`customSlots` 应包含它们。SVG 规范，保持与模板一致才不会风格打架：
+**角色美术（每次都要做，不是 G4 的可选项）**：`create` 之后 `customSlots` 为空，意味着角色还是模板通用造型。按用户原话重画 `assets/hero.svg`、`enemy.svg`、`pickup.svg`（背景可沿用；`lifesim` 只有 `hero`），再 `build`，`customSlots` 应包含它们。SVG 规范，保持与模板一致才不会风格打架：
 - `viewBox="0 0 256 256"`，透明底，主体居中，脚下放一个 `opacity≈.35` 的椭圆阴影。
 - 扁平卡通 + 深色描边（模板用 `#2b1b12`，`stroke-width` 7–8，`stroke-linejoin="round"`），大色块、少渐变、不放文字。
 - 先画后层（尾巴、耳朵），再画身体、头，最后画五官；腮红用低透明度圆点增加亲和力。
@@ -76,6 +80,37 @@ env -u NODE_OPTIONS node "$STUDIO" create --dir "$PWD/games/fox" --template coll
 
 **2D 界面样式**：模板已提供 `glass()`（半透明面板/胶囊）、`softText()`（带柔和阴影的文字）、`ctaButton()`（金色开始按钮）、`dim()`（径向暗角）。改标题屏、结算屏、HUD 时复用它们，保持整套界面一致；不要退回到「文字直接画在场景上」。
 **改文案的坑**：英文界面靠 `scripts/i18n.mjs` 的字符串替换实现，源码里的中文文案必须和 `PAIRS` 里的原文逐字一致。新增或修改界面文案时，同步在 `PAIRS` 里加对应英文，否则 `--lang en` 会漏翻。
+
+### 人生模拟模板（lifesim）与小学生用户
+
+**玩法**：从某个年级开始，一学期一学期长大。每学期把 3 份时间分给「学习 / 运动 / 朋友 / 特长 / 家人 / 休息」，再遇到一个随机事件做选择；小升初、中考、高考三场大考决定去哪所学校，最后考上哪所大学。6 项属性（学习、健康、心情、朋友、特长、家人）会自然下滑，只顾一项会被别的拖垮，玩着玩着就懂了「要平衡」。高考太低可选复读一年。
+
+**从孩子的话映射到 `--rules`**（没说的就用默认，不要追问）：
+
+| 孩子说的 | 规则 |
+|---|---|
+| 「我现在五年级 / 初一 / 高一」 | `startGrade`: 5 / 7 / 10（小学 1–6、初中 7–9、高中 10–12） |
+| 「我叫小红」 | `name`；没说就保持默认，开始界面本来就能改名 |
+| 「我想考清华 / 北大」 | `dream` + `dreamScore`：顶尖名校 680，985 类 640，普通重点 600 |
+| 「我喜欢画画 / 钢琴 / 足球」 | `hobby`（会变成第 5 项属性和一个「练习…」活动） |
+| 「简单点 / 难一点」 | `difficulty`: 0.7 / 1.3（一半力度生效，范围 0.6–1.6） |
+| 想每次都一样的剧情 | `seed` 设成任意非 0 数字 |
+
+```sh
+env -u NODE_OPTIONS node "$STUDIO" create --dir "$PWD/games/life" --template lifesim \
+  --title "我的人生模拟器" --rules '{"startGrade":5,"dream":"清华大学","dreamScore":680,"hobby":"画画"}'
+```
+
+**必做**：
+1. 主角形象就是「我」。`assets/hero.svg` 默认是一个中性小学生；孩子提到发型、眼镜、男生女生、喜欢的颜色，就按 G2「角色美术」的规范改 SVG（头发、衣服颜色最容易改），再 `build`。
+2. 想加自己的事件：打开 `game.js`，复制 `EVENTS` 里任意一项（`E('id','p|m|h|a', 标题, 文字, [C(按钮, {属性变化}, 结果)])`），`p/m/h` 分别是小学/初中/高中，`a` 是任何阶段。改完跑 `node --test "$S/test/lifesim.mjs"`，它会检查数值没被改得过易或过难。
+3. 不要用 `--lang en`（只有中文界面）；不要加 `--orientation portrait`（界面本身会自适应手机竖屏）。
+4. 没有 `enemy` / `pickup` / `background` 槽，别去改它们。
+5. 终点就是「考上大学」。孩子想模拟大学四年、工作、结婚等更长的人生，如实说这一版只到考上大学，并提议先做好这一段；需要再延长时，在 `game.js` 里扩展年级与事件，不要假装已经支持。
+
+**内容边界（面向未成年人，铁律）**：新增事件必须积极、温暖、适龄：友情、家庭、学习、兴趣、运动、诚实、勇敢、帮助别人。不写暴力、恋爱、自伤、歧视、赌博、网络不良信息；孩子要求加这类内容时，温和地换成适龄的版本（例如「打架」改成「勇敢地告诉老师」）。压力、失败、考砸要写成「可以调整、可以求助」。
+
+**和小学生沟通**：用短句、白话、鼓励的口气，少用术语（不说「构建」「CSP」「JSON」，说「做好了」「打开就能玩」）。开工前一句话说明要做什么；做完后只说三件事：怎么玩（一两句）、做成了什么、可以改什么（给 2–3 个孩子一听就懂的点子，如「换成你的名字」「改梦想大学」「加几个自己学校的故事」）。不要大段罗列文件和命令。交付时用 `export` 导出单个 HTML（双击就能玩），要在手机上玩就 `share`。
 
 **G3 · 自动试玩验收**
 
@@ -93,7 +128,8 @@ env -u NODE_OPTIONS node "$STUDIO" playtest --dir "$PWD/games/fox" --seconds 8 -
 - 主角、敌人、收集物一眼能分清，造型与用户描述一致，不是模板默认角色。
 - 收集物有高光或光晕，和背景拉得开；敌人与主角颜色不接近。
 - HUD、面板、按钮的圆角、描边、留白统一；竖屏（`--portrait`）下也不溢出。
-- 英文界面（`--lang en`）下文案没有漏翻、没有撑破面板。
+- 英文界面（`--lang en`）下文案没有漏翻、没有撑破面板（`lifesim` 除外，它只有中文）。
+- `lifesim`：标题屏有名字、梦想大学、开始按钮；安排时间屏 6 个活动和 3 个格子清楚；结局屏有大学名、分数、称号、成长回忆；用 `--portrait` 跑一遍，手机竖屏下卡片不溢出。`playtest --seconds 8` 的 `phases` 要出现 `won`，`bestScore` 是高考分。
 任何一条不过，改完重新 `build` + `playtest`，再看一次图。
 
 **G4 · AI 美术（用户要求时才做）**

@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "template": "lifesim",
+  "title": "人生模拟器",
+  "slots": {
+    "hero": { "file": "assets/hero.svg", "label": "我", "size": [256, 256], "transparent": true }
+  },
+  "rules": {
+    "name": "小明",
+    "startGrade": 5,
+    "dream": "清华大学",
+    "dreamScore": 660,
+    "hobby": "画画",
+    "slotsPerTerm": 3,
+    "difficulty": 1,
+    "seed": 0,
+    "retake": true
+  }
+}

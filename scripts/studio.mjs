@@ -3,7 +3,7 @@
  * wb-game-studio - zero-dependency game project tool for WorkBuddy.
  *
  * Commands:
- *   create      --dir DIR --template collector|voxel [--title T] [--rules JSON] [--slots JSON]
+ *   create      --dir DIR --template collector|voxel|lifesim [--title T] [--rules JSON] [--slots JSON]
  *               [--orientation portrait|landscape] [--lang zh|en] [--force]
  *   build       --dir DIR [--note TEXT]
  *   playtest    --dir DIR [--seconds N] [--portrait] [--characters]
@@ -38,7 +38,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const TEMPLATES = join(ROOT, 'assets', 'templates')
 const VENDOR = join(ROOT, 'assets', 'vendor')
 const MAX_ARTIFACT_BYTES = 24 * 1024 * 1024
-const TEMPLATE_IDS = ['collector', 'voxel']
+const TEMPLATE_IDS = ['collector', 'voxel', 'lifesim']
 
 const CSP = [
   "default-src 'none'",

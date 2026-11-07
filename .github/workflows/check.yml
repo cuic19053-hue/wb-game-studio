@@ -15,5 +15,5 @@ jobs:
           node-version: '22'
       - name: Check for a local Chrome/Edge (browser tests skip when absent)
         run: (google-chrome --version || chromium --version || echo "no chrome; browser tests will skip") || true
-      - name: Smoke test (build, playtest, assets, wall, share, versions)
-        run: node --test test/smoke.mjs
+      - name: Tests (smoke: build/playtest/assets/wall/share/versions; lifesim: balance)
+        run: node --test "test/*.mjs"

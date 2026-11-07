@@ -59,12 +59,22 @@ window.GAME = {
 - 3D 项目在 `game.js` 之前额外内联 `assets/vendor/three.min.js`，页面提供全局 `window.THREE`（three.js r160.1 UMD，MIT）。
 - 模板会向 `window.parent.postMessage` 汇报错误与渲染缩略图；独立打开时父窗口就是自己，不影响运行。
 
+## 人生模拟（lifesim）模板
+
+文字选择 + 养成类游戏（五年级一路到高考）。它也遵守上面的契约：
+
+- `window.__gameState()` 返回 `{ phase, stage, grade, gradeName, term, age, stats, score, ending, school, retaken, fps }`。`phase` 为 `title → playing → won`；`stage` 是细分阶段（`allocate` 安排时间 / `event` 事件选择 / `report` 学期结算 / `exam` 考试 / `retake` 复读选择 / `ending` 结局）；`score` 是高考分，`ending` 含 `uni`、`tier`（`top/key/ben/zhuan`）、`dreamOk`、`title`。
+- `window.__autoplay()` 每次调用会自动推进若干步（均衡安排时间、选第一个选项），试玩因此能在几秒内从标题走到结局。
+- 规则（`game.json` 的 `rules`）：`name`、`startGrade`（1–12）、`dream`、`dreamScore`、`hobby`、`slotsPerTerm`、`difficulty`、`seed`、`retake`。`seed` 非 0 时每次人生完全相同，方便复现。
+- 页面用 DOM 绘制界面，`<canvas id="game">` 只作动态背景；仅有中文界面（`--lang en` 不会翻译）。
+- 自己加事件：复制 `game.js` 里 `EVENTS` 的一项，改 `title` / `text` / 选项 `fx`（属性变化）/ `res`（结果文字）。数值平衡由 `test/lifesim.mjs` 守护：改完请跑 `node --test test/lifesim.mjs`。
+
 ## 模板差异
 
-| | collector（2D） | voxel（3D） |
-|---|---|---|
-| 渲染 | Canvas 2D 俯视 | three.js WebGL 体素世界 |
-| 运行环境 | 无 | `runtime: ["three"]` |
-| 规则示例 | `heroSpeed: 320`、`enemySpeed: 120`、`heroSize: 76` | `heroSpeed: 6.5`、`worldSize: 34`、`palette` 配色 |
-| 背景槽 | `background.svg`，`tile: true` | `ground.svg`，`tile: true` + `texture: true` |
-| 产物体积 | 小（几十 KB） | 约 700 KB（内联 three.js） |
+| | collector（2D） | voxel（3D） | lifesim（文字养成） |
+|---|---|---|---|
+| 渲染 | Canvas 2D 俯视 | three.js WebGL 体素世界 | DOM 界面 + Canvas 动态背景 |
+| 运行环境 | 无 | `runtime: ["three"]` | 无 |
+| 规则示例 | `heroSpeed: 320`、`enemySpeed: 120`、`heroSize: 76` | `heroSpeed: 6.5`、`worldSize: 34`、`palette` 配色 | `startGrade: 5`、`dream`、`hobby`、`difficulty` |
+| 背景槽 | `background.svg`，`tile: true` | `ground.svg`，`tile: true` + `texture: true` | 无（只有 `hero` 槽） |
+| 产物体积 | 小（几十 KB） | 约 700 KB（内联 three.js） | 小（约 60 KB） |

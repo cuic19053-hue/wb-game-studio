@@ -1,0 +1,946 @@
+/* Life Simulator — "lifesim" starter. Vanilla JS, one classic script.
+ * The page defines window.GAME = {title, rules, slots, assets}.
+ *
+ * How it plays: from grade `startGrade` to the gaokao, one school term at a
+ * time. Each term you spend `slotsPerTerm` pieces of time on activities, then
+ * a random event asks you to choose, then you see what changed. Three big
+ * exams (小升初 / 中考 / 高考) decide which school you reach and which
+ * university you get into.
+ *
+ * Where to edit:  2. RULES · 3. EVENTS (add your own!) · 4. ACTIVITIES · 6. EXAMS */
+(function () {
+  'use strict';
+
+  /* 1. SETUP — host config and defaults */
+  var GAME = (typeof window !== 'undefined' && window.GAME) || {};
+  var DEFAULTS = {
+    name: '小明',          // the hero's name (the title screen lets the player change it)
+    startGrade: 5,         // 1-6 primary, 7-9 middle school, 10-12 high school
+    dream: '清华大学',      // dream university, shown on screen
+    dreamScore: 660,       // score needed to make the dream come true (300-750)
+    hobby: '画画',         // the special talent the player grows
+    slotsPerTerm: 3,       // pieces of time to spend each term (1-5)
+    difficulty: 1,         // 0.6 easy ... 1.6 hard
+    seed: 0,               // 0 = different every time; any other number = same story every time
+    retake: true           // allow one retake year after a low gaokao score
+  };
+
+  /* 2. RULES — read from GAME.rules, falling back to DEFAULTS */
+  var R = resolveRules(GAME.rules || {}, DEFAULTS);
+  function resolveRules(rules, def) {
+    var out = {};
+    for (var key in def) {
+      var v = rules[key];
+      if (v === undefined || v === null) { out[key] = def[key]; continue; }
+      if (typeof def[key] === 'number') { var n = Number(v); out[key] = isFinite(n) ? n : def[key]; }
+      else if (typeof def[key] === 'boolean') out[key] = (v === true || v === 'true');
+      else out[key] = String(v);
+    }
+    out.startGrade = clamp(Math.round(out.startGrade), 1, 12);
+    out.slotsPerTerm = clamp(Math.round(out.slotsPerTerm), 1, 5);
+    out.difficulty = clamp(out.difficulty, 0.6, 1.6);
+    // Only half of the dial reaches the maths, so "easy" and "hard" both stay playable.
+    out.diff = 1 + (out.difficulty - 1) * 0.5;
+    out.dreamScore = clamp(Math.round(out.dreamScore), 300, 750);
+    return out;
+  }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  var ASSETS = GAME.assets || {};
+  var TITLE = GAME.title || '人生模拟器';
+
+  // Seeded random numbers: a fixed `seed` replays the same story.
+  function makeRng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var rand = makeRng(R.seed ? R.seed : (Math.random() * 4294967296) >>> 0);
+
+  /* 3. STATS + EVENTS ------------------------------------------------------ */
+  var STATS = [
+    { k: 'study',   name: '学习', icon: '📚', color: '#5b8cff' },
+    { k: 'health',  name: '健康', icon: '💪', color: '#34c98b' },
+    { k: 'mood',    name: '心情', icon: '😊', color: '#ffb931' },
+    { k: 'friends', name: '朋友', icon: '🤝', color: '#ff7fa8' },
+    { k: 'talent',  name: R.hobby, icon: '🎨', color: '#a77bff' },
+    { k: 'family',  name: '家人', icon: '🏠', color: '#ff8f55' }
+  ];
+  var STAT_NAME = {};
+  STATS.forEach(function (s) { STAT_NAME[s.k] = s.name; });
+
+  /* Events. stage: 'p' primary (grades 1-6), 'm' middle (7-9), 'h' high (10-12),
+   * 'a' any. `need(stats)` makes an event appear only in some situations.
+   * Each choice: label (the button), fx (stat changes), res (what happens).
+   * Use {name} for the hero's name. To add your own, copy one and edit it. */
+  function C(label, fx, res, bonus) { return { label: label, fx: fx, res: res, bonus: bonus || 0 }; }
+  function E(id, stage, title, text, choices, need) {
+    return { id: id, stage: stage, title: title, text: text, choices: choices, need: need || null };
+  }
+  var EVENTS = [
+    // ---- primary school ----
+    E('p_leader', 'p', '班干部竞选', '班里要选新的班干部啦，{name}想试试吗？', [
+      C('竞选班长', { friends: 5, study: 2, mood: -2 }, '你鼓起勇气上台演讲，虽然手心出汗，但同学们给了你热烈的掌声！'),
+      C('竞选学习委员', { study: 5, friends: 2 }, '你负责收发作业，每天都比别人更早进教室，学习劲头更足了。'),
+      C('先观察一学期', { mood: 3 }, '你决定先看看大家怎么做，轻轻松松过了一学期。')
+    ]),
+    E('p_math', 'p', '数学小竞赛', '老师说学校要办数学小竞赛，欢迎大家报名。', [
+      C('报名，自己认真准备', { study: 6, mood: -2, health: -1 }, '你做了好多思维题，拿到了奖状，也学会了遇到难题不放弃。'),
+      C('约几个同学组队', { study: 3, friends: 5 }, '大家一起讨论，你们小队配合得特别默契。'),
+      C('今年先不参加', { mood: 2 }, '你选择把时间留给自己喜欢的事，也挺好的。')
+    ]),
+    E('p_kitten', 'p', '小区里的小猫', '放学路上，你看到一只瘦瘦的小猫在花坛边喵喵叫。', [
+      C('带点小零食去看它', { mood: 5, health: 1 }, '小猫一见到你就跑过来蹭你的腿，你的心都化了。'),
+      C('回家问问爸妈能不能照顾它', { family: 4, mood: 3 }, '爸妈和你一起想办法，带小猫去检查，还给它找到了合适的家。'),
+      C('摸摸它就回家', { mood: 2 }, '你轻轻摸了摸小猫，心情也变得柔软起来。')
+    ]),
+    E('p_sports', 'p', '校运动会', '一年一度的校运动会开始了！', [
+      C('报名跑步比赛', { health: 6, mood: 3 }, '你拼尽全力冲过终点线，累得直喘气，却特别开心。'),
+      C('当班级啦啦队', { friends: 5, mood: 3 }, '你嗓子都喊哑了，班级凝聚力满格！'),
+      C('当后勤小志愿者', { friends: 3, family: 1, study: 1 }, '你给运动员递水、记成绩，大家都夸你可靠。')
+    ]),
+    E('p_game', 'p', '游戏的诱惑', '同学说一款新游戏特别好玩，你有点心动了。', [
+      C('玩到很晚，不想停', { mood: 4, study: -5, health: -3 }, '第二天上课你一直打哈欠，老师讲的内容完全没听进去。'),
+      C('和爸妈约定，每天只玩半小时', { mood: 2, study: 1, family: 3 }, '你和爸妈定了小约定，玩得开心也不耽误事。'),
+      C('改成去看课外书', { study: 4, mood: 2 }, '你看了一本很有趣的书，还给同桌推荐了。')
+    ]),
+    E('p_cram', 'p', '补习班的选择', '爸妈想给你报几个周末补习班。', [
+      C('听爸妈的，全部去上', { study: 5, mood: -3, family: 1 }, '周末变得满满当当，你学到不少，但也有点累。'),
+      C('商量只选最感兴趣的一个', { talent: 4, study: 2, family: 2 }, '你说出自己的想法，爸妈听进去了，你们一起选了一个。'),
+      C('说不想去', { mood: 2, family: -3 }, '你们闹得有点不愉快，后来才发现应该好好商量。')
+    ]),
+    E('p_quarrel', 'p', '和好朋友闹别扭', '你和最好的朋友因为一件小事吵起来了。', [
+      C('主动说一句对不起', { friends: 6, mood: 2 }, '你们都笑了，友谊比以前更牢固。'),
+      C('谁也不理谁', { friends: -5, mood: -3 }, '好几天都没说话，你心里一直不舒服。'),
+      C('找老师或家人聊聊', { friends: 3, family: 3 }, '大人给了你一些建议，你们很快和好了。')
+    ]),
+    E('p_artfest', 'p', '校园艺术节', '学校要办艺术节，正在征集节目。', [
+      C('报名上台表演', { talent: 7, friends: 2, mood: 2 }, '你在台上有点紧张，但表演完全场掌声雷动！'),
+      C('帮忙布置会场', { friends: 4, talent: 2 }, '你和同学一起做装饰，会场被布置得漂漂亮亮。'),
+      C('安安静静当观众', { mood: 3 }, '你看了很多精彩节目，收获满满。')
+    ]),
+    E('p_wallet', 'p', '捡到钱包', '路边的长椅上有一个没人认领的钱包。', [
+      C('交给老师或警察叔叔', { mood: 4, friends: 2, family: 2 }, '失主特别感谢你，学校还表扬了你，你心里暖暖的。'),
+      C('在原地等失主来找', { mood: 3, health: -1 }, '你等了好一会儿，终于等到焦急的失主，大家都松了一口气。')
+    ]),
+    E('p_homework', 'p', '作业堆成山', '今天各科老师都留了不少作业。', [
+      C('先做最难的', { study: 5, mood: -2 }, '难题解决后，剩下的就轻松多啦。'),
+      C('先做简单的，再慢慢啃难的', { study: 2, mood: 1 }, '你把作业都完成了，只是难题花了不少时间。'),
+      C('抄同学的作业', { study: -4, mood: -2, friends: -1 }, '老师一眼看出来了，你心里很不安，决定以后一定自己做。')
+    ]),
+    E('p_reading', 'p', '班级图书角', '教室新开了图书角，里面有好多好看的书。', [
+      C('借一本最厚的书', { study: 4, mood: 2 }, '你读了好几个晚上，还写了小小的读后感。'),
+      C('和同学交换着看', { friends: 4, study: 2 }, '你们读完还互相讲故事，聊得停不下来。')
+    ]),
+    // ---- middle school ----
+    E('m_argue', 'm', '和爸妈拌嘴', '最近你觉得爸妈总爱唠叨，今天又为一件小事吵起来了。', [
+      C('摔门回房间', { family: -4, mood: -2 }, '你冷静下来后有点后悔，家里的气氛一整天都很沉闷。'),
+      C('深呼吸，把想法好好说出来', { family: 4, mood: 2 }, '你耐心表达，爸妈也认真倾听，还向你道了歉。'),
+      C('把心情写进日记', { mood: 3, talent: 1 }, '写完之后你的心里轻松了许多。')
+    ]),
+    E('m_exam', 'm', '月考没考好', '这次月考成绩出来了，比你想象的差一些。', [
+      C('把错题都认真订正', { study: 6, mood: -1 }, '你发现丢分的地方都是可以补上的，信心又回来了。'),
+      C('把试卷塞进书包，不想看', { mood: -4, study: -2 }, '问题没解决，你心里总是悬着。'),
+      C('向老师请教错题', { study: 5, family: 1, friends: 1 }, '老师耐心给你讲了思路，你豁然开朗。')
+    ]),
+    E('m_club', 'm', '社团招新', '各个社团在操场摆起了摊位，{name}想加入哪个？', [
+      C('篮球社 / 运动社团', { health: 6, friends: 4 }, '你每周都和队友一起训练，身体棒棒的。'),
+      C('科技或编程社团', { study: 3, talent: 4, friends: 1 }, '你做出了第一个小作品，成就感满满。'),
+      C('文学或艺术社团', { talent: 5, mood: 3 }, '你在社团里发现了新的灵感。')
+    ]),
+    E('m_video', 'm', '短视频停不下来', '你刷着短视频，不知不觉已经很晚了。', [
+      C('设定使用时间，到点就放下', { study: 3, mood: 1, health: 1 }, '你发现自己能控制自己，真厉害。'),
+      C('一刷刷到半夜', { mood: 3, study: -5, health: -4 }, '第二天你昏昏沉沉，什么都学不进去。'),
+      C('换成看科普类视频', { study: 3, mood: 2 }, '你学到了不少新知识，还转头讲给同学听。')
+    ]),
+    E('m_transfer', 'm', '新来的转学生', '班里来了一位转学生，看起来有点紧张。', [
+      C('主动打招呼，带他熟悉学校', { friends: 7, mood: 3 }, '你们很快成了好朋友，一起上学一起回家。'),
+      C('先看看再说', { friends: 2 }, '你偶尔打个招呼，慢慢有了联系。')
+    ]),
+    E('m_kind', 'm', '看到有人被起哄', '课间，你看到有同学被几个人起哄取笑。', [
+      C('勇敢站出来，并告诉老师', { friends: 4, mood: 3, family: 1 }, '老师及时处理了，那位同学悄悄对你说了谢谢。'),
+      C('陪在被取笑的同学身边安慰他', { friends: 5, mood: 2 }, '你的陪伴让他不再孤单。'),
+      C('装作没看见', { mood: -3 }, '你心里一直过意不去，决定下次一定要勇敢一点。')
+    ]),
+    E('m_pe', 'm', '体育中考训练', '体育中考要来了，该好好练练了。', [
+      C('每天早起晨跑', { health: 7, mood: 1 }, '坚持一个月，你发现自己跑得更快也更有精神了。'),
+      C('约同学一起练', { health: 5, friends: 4 }, '你们互相鼓励，一起变强。'),
+      C('今天先休息，明天再说', { health: -3, mood: 2 }, '一拖再拖，你开始有点着急。')
+    ]),
+    E('m_teacher', 'm', '老师的鼓励', '老师说你最近进步很大，邀请你加入学习提升小组。', [
+      C('参加小组，认真跟上', { study: 6, mood: 1 }, '你跟着大家一起刷题讨论，进步飞快。'),
+      C('当小助教，给同学讲题', { study: 4, friends: 4 }, '讲题让你把知识点理得更清楚，还交到了新朋友。')
+    ]),
+    E('m_trip', 'm', '研学旅行', '班级要去博物馆研学，大家都很兴奋。', [
+      C('认真做记录，写研学小报', { study: 2, talent: 4, mood: 1 }, '你的小报被老师贴在了教室墙上。'),
+      C('拍下很多美好的瞬间', { talent: 3, friends: 3, mood: 3 }, '你的照片被全班同学争着要。')
+    ]),
+    // ---- high school ----
+    E('h_subject', 'h', '选科目', '到了选科的时候，不同的选择会带来不同的未来。', [
+      C('选自己最感兴趣的', { study: 4, mood: 3 }, '你学得特别有劲，成绩稳步提升。'),
+      C('选看起来最有前景的', { study: 5, mood: -2 }, '你很努力，但有时会觉得没那么有趣。'),
+      C('问问老师和家人的意见', { study: 3, family: 3 }, '大人们给了你很多不同的角度，你想得更清楚了。')
+    ]),
+    E('h_night', 'h', '熬夜刷题', '离考试越来越近，你想再多刷几套题。', [
+      C('熬到凌晨', { study: 6, health: -6, mood: -3 }, '第二天你头昏脑涨，效率反而下降了。'),
+      C('按时睡觉，明天再战', { health: 3, study: 2 }, '睡饱之后，你的脑子转得飞快。')
+    ]),
+    E('h_stress', 'h', '压力有点大', '最近作业和考试多，你觉得喘不过气。', [
+      C('约朋友出去散步聊聊', { mood: 7, friends: 3 }, '说出来之后，你发现大家都和你一样，心里轻松多了。'),
+      C('去操场跑几圈', { health: 4, mood: 5 }, '出了一身汗，烦恼好像也被带走了。'),
+      C('回家和家人好好吃一顿', { family: 4, mood: 4 }, '热腾腾的饭菜和家人的鼓励，让你重新充满力量。')
+    ]),
+    E('h_mock', 'h', '模拟考退步了', '这次模拟考，你的排名往后退了几名。', [
+      C('分析原因，重新制定计划', { study: 6, mood: -1 }, '你找到了薄弱环节，每天补一点，很快追了回来。'),
+      C('心情很差，什么都不想做', { mood: -5, study: -2 }, '你消沉了一阵子，才慢慢缓过来。'),
+      C('找老师和同学一起讨论', { study: 4, friends: 2, mood: 1 }, '大家的思路让你受益匪浅。')
+    ]),
+    E('h_invite', 'h', '朋友邀你出去玩', '周末，好朋友约你出去放松一下。', [
+      C('去，放松半天', { friends: 5, mood: 5, study: -3 }, '你们玩得特别开心，回来感觉精力满满。'),
+      C('谢绝，在家复习', { study: 3, friends: -2 }, '你完成了计划，但有点想念朋友。'),
+      C('约好考完试再聚', { friends: 1, study: 2, mood: 1 }, '大家都表示理解，说好了考后一起庆祝。')
+    ]),
+    E('h_senior', 'h', '学长学姐分享会', '今天，考上理想大学的学长学姐回学校分享经验。', [
+      C('认真做笔记', { study: 5, mood: 2 }, '你记下了很多宝贵的学习方法。'),
+      C('课后向学长学姐请教', { friends: 2, study: 3, mood: 2 }, '他们鼓励你"保持节奏，相信自己"，你备受鼓舞。')
+    ]),
+    E('h_volunteer', 'h', '社会实践', '学校组织了社区志愿服务活动。', [
+      C('报名参加', { friends: 3, mood: 4, talent: 3 }, '你帮助了很多人，也获得了满满的成就感。'),
+      C('先把课业放第一位', { study: 3 }, '你利用时间多做了一些练习。')
+    ]),
+    E('h_parents', 'h', '家长会之后', '家长会结束后，爸妈和你聊了很久。', [
+      C('认真听，告诉他们你的计划', { family: 5, study: 2, mood: 2 }, '爸妈松了一口气，说无论结果怎么样都支持你。'),
+      C('觉得被唠叨，不想说话', { family: -3, mood: -2 }, '这次谈话不太愉快，你心里有点复杂。')
+    ]),
+    // ---- any stage ----
+    E('a_birthday', 'a', '生日会', '今天是{name}的生日，朋友们和家人为你准备了惊喜。', [
+      C('许下一个愿望，吹蜡烛', { mood: 6, friends: 3, family: 3 }, '大家一起唱生日歌，这个生日特别难忘。')
+    ], function (s) { return s.friends > 55 && s.family > 45; }),
+    E('a_lucky', 'a', '小小好运', '今天出门，你遇到了一件小小的好事。', [
+      C('开心地和别人分享', { mood: 4, friends: 2 }, '好运被你分享出去，变成了双倍的快乐。'),
+      C('默默记在心里', { mood: 3 }, '你的嘴角一整天都带着笑。')
+    ]),
+    E('sick', 'a', '身体不舒服', '你感觉头昏脑涨，好像感冒了。', [
+      C('去看医生，好好休息', { health: 8, study: -3, family: 2 }, '休息几天后，你又活力满满。'),
+      C('硬撑着去上课', { health: -5, study: 2 }, '你撑了一周，反而越来越难受，真是得不偿失。')
+    ]),
+    E('lowmood', 'a', '心情低落', '这几天，你总是提不起劲，觉得有点闷闷的。', [
+      C('和好朋友聊聊', { mood: 6, friends: 3 }, '说出来之后，心里轻松多了。'),
+      C('和家人一起吃顿好的', { mood: 5, family: 4 }, '大家温暖的陪伴，让你好多了。'),
+      C('出去走走，看看风景', { mood: 5, health: 2 }, '新鲜的空气让你的心情渐渐明朗。')
+    ])
+  ];
+  function findEvent(id) { for (var i = 0; i < EVENTS.length; i++) if (EVENTS[i].id === id) return EVENTS[i]; return null; }
+
+  // The night before a big exam (replaces the random event that term).
+  var PREP = E('prep', 'a', '考前一晚', '明天就是{exam}了，今晚，{name}想怎么度过？', [
+    C('早点休息，养足精神', { health: 4, mood: 4 }, '你睡了一个好觉，第二天精神饱满。', 3),
+    C('再把重点过一遍', { study: 3, mood: -2 }, '你把重点又巩固了一遍，心里更有底了。', 2),
+    C('和家人散散步，放松心情', { family: 4, mood: 5 }, '家人的鼓励让你感到特别安心。', 3)
+  ]);
+
+  /* 4. ACTIVITIES — how a piece of time can be spent. */
+  var ACTS = [
+    { id: 'study',  icon: '📖', name: '认真学习', hint: '学习大涨，但会有点累', fx: { study: 5.5, mood: -3, health: -1 } },
+    { id: 'sport',  icon: '🏃', name: '运动锻炼', hint: '健康大涨，心情也变好', fx: { health: 7, mood: 2 } },
+    { id: 'friend', icon: '🧑‍🤝‍🧑', name: '和朋友玩', hint: '朋友变多，心情变好', fx: { friends: 7, mood: 3, study: -1 } },
+    { id: 'talent', icon: '🎨', name: '练习' + R.hobby, hint: '特长慢慢长大', fx: { talent: 7, mood: 2 } },
+    { id: 'family', icon: '🏠', name: '陪伴家人', hint: '和家人更亲密', fx: { family: 7, mood: 2, study: 1 } },
+    { id: 'rest',   icon: '😴', name: '好好休息', hint: '心情和健康都恢复', fx: { mood: 7, health: 3 } }
+  ];
+  var ACT = {};
+  ACTS.forEach(function (a) { ACT[a.id] = a; });
+
+  /* 5. STATE */
+  var S = null;
+  function newState() {
+    return {
+      phase: 'title', stage: 'title',
+      grade: R.startGrade, term: 1, termNo: 0,
+      name: R.name,
+      stats: { study: 55, health: 60, mood: 60, friends: 50, talent: 40, family: 60 },
+      snap: null, slots: [], event: null, evText: '', evChoice: -1,
+      used: {}, lastSeen: {}, school: null, examBonus: 0,
+      exam: null, revealed: false, retaken: false,
+      log: [], ending: null, gaokao: 0, skip: false
+    };
+  }
+  S = newState();
+
+  function round(v) { return Math.round(v); }
+  function snapshot() { var o = {}; for (var k in S.stats) o[k] = round(S.stats[k]); return o; }
+  function applyFx(fx) {
+    for (var k in fx) S.stats[k] = clamp(S.stats[k] + fx[k], 0, 100);
+  }
+  function fmt(text) {
+    return String(text).replace(/\{name\}/g, S.name).replace(/\{exam\}/g, examNameAt(S.grade) || '大考');
+  }
+
+  var NUM = ['一', '二', '三', '四', '五', '六'];
+  function gradeLabel(g) {
+    if (g <= 6) return NUM[g - 1] + '年级';
+    if (g <= 9) return '初' + NUM[g - 7];
+    return '高' + NUM[g - 10];
+  }
+  function stageOf(g) { return g <= 6 ? 'p' : g <= 9 ? 'm' : 'h'; }
+  function termLabel() { return (S.retaken ? '复读·' : '') + gradeLabel(S.grade) + (S.term === 1 ? '上学期' : '下学期'); }
+  function examNameAt(g) { return g === 6 ? '小升初' : g === 9 ? '中考' : g === 12 ? '高考' : null; }
+  function logAdd(text) { S.log.push({ at: termLabel(), text: text }); }
+
+  /* One school term: spend the time slots, then the slow slide of everything
+   * you did not practise. */
+  function applyActivities() {
+    var st = S.stats, counts = {};
+    var eff = 0.75 + 0.25 * ((st.mood + st.health) / 200);
+    S.slots.forEach(function (id) {
+      var n = counts[id] || 0;
+      counts[id] = n + 1;
+      var factor = [1, 0.85, 0.7, 0.6, 0.5][n];
+      var fx = ACT[id].fx;
+      for (var k in fx) {
+        var v = fx[k];
+        if (v > 0) { v *= factor; if (k === 'study') v = v * eff / R.diff; }
+        st[k] = clamp(st[k] + v, 0, 100);
+      }
+    });
+    var g = S.grade;
+    // Knowledge fades: the more you know and the higher the grade, the more upkeep it needs.
+    var studyDecay = (1.5 + (g - 5) * 0.6 + st.study * 0.07) * R.diff;
+    if (S.school === 'A') studyDecay = Math.max(0.6, studyDecay - 1);
+    st.study -= studyDecay;
+    st.health -= 1.5;
+    st.friends -= 2;
+    st.talent -= 2;
+    st.family -= 1.8;
+    st.mood += (58 - st.mood) * 0.12; // moods drift back to normal
+    if (st.health < 30) { st.study -= 2.5; st.mood -= 2; }
+    if (st.mood < 30) st.study -= 2.5;
+    if (st.friends < 25) st.mood -= 2;
+    if (st.family < 25) st.mood -= 2;
+    for (var k2 in st) st[k2] = clamp(st[k2], 0, 100);
+  }
+
+  function pickEvent() {
+    var s = S.stats, stage = stageOf(S.grade);
+    function recent(id) { return S.lastSeen[id] && S.termNo - S.lastSeen[id] < 3; }
+    if (examNameAt(S.grade) && S.term === 2) {
+      return PREP;
+    }
+    if (s.health < 36 && !recent('sick')) return findEvent('sick');
+    if (s.mood < 32 && !recent('lowmood')) return findEvent('lowmood');
+    var pool = [];
+    EVENTS.forEach(function (e) {
+      if (e.id === 'sick' || e.id === 'lowmood') return;
+      if (e.stage !== 'a' && e.stage !== stage) return;
+      if (S.used[e.id]) return;
+      if (e.need && !e.need(s)) return;
+      pool.push(e);
+    });
+    if (!pool.length) { S.used = {}; return findEvent('a_lucky'); }
+    return pool[Math.floor(rand() * pool.length)];
+  }
+
+  /* 6. EXAMS — thresholds live here. perf is 0-100, mostly from studying. */
+  var UNIS = {
+    top: ['清华大学', '北京大学', '复旦大学', '浙江大学', '上海交通大学'],
+    key: ['华中科技大学', '西安交通大学', '四川大学', '中山大学', '山东大学'],
+    ben: ['省内的重点本科院校', '一所不错的师范大学', '一所理工大学', '一所财经大学'],
+    zhuan: ['一所职业技术学院', '一所信息技术职业学院']
+  };
+  function pickFrom(list) { return list[Math.floor(rand() * list.length)]; }
+
+  function makeExam(kind) {
+    var s = S.stats;
+    var luck = (rand() - 0.5) * 16 * R.diff;
+    var perf = s.study * 0.78 + s.health * 0.11 + s.mood * 0.11 + S.examBonus + luck;
+    if (S.school === 'A') perf += 2;
+    perf = clamp(perf, 0, 100);
+    var ex = { kind: kind, perf: perf };
+    if (kind === 'xsc') {
+      ex.name = '小升初'; ex.max = 500; ex.score = round(perf * 5);
+      ex.school = perf >= 52 ? 'A' : 'B';
+      ex.headline = ex.school === 'A' ? '考上了重点初中！' : '进入了家附近的初中';
+      ex.detail = ex.school === 'A'
+        ? '新学校的学习氛围很浓，同学们都很上进，你要好好珍惜。'
+        : '每一所学校都有闪光的地方，只要你努力，一样能发光发热。';
+    } else if (kind === 'zk') {
+      ex.name = '中考'; ex.max = 700; ex.score = round(perf * 7);
+      ex.school = perf >= 60 ? 'A' : 'B';
+      ex.headline = ex.school === 'A' ? '考上了重点高中！' : '进入了一所普通高中';
+      ex.detail = ex.school === 'A'
+        ? '这里有很多优秀的同学和老师，高中三年，加油！'
+        : '高中三年还有很长的路，好好努力，你依然可以考上理想的大学。';
+    } else {
+      var score = 260 + perf * 4.9 + (S.school === 'A' ? 10 : 0) + (s.talent >= 80 ? 8 : 0);
+      score = round(clamp(score, 200, 748));
+      ex.name = '高考'; ex.max = 750; ex.score = score;
+      ex.tier = score >= 640 ? 'top' : score >= 550 ? 'key' : score >= 450 ? 'ben' : 'zhuan';
+      ex.dreamOk = score >= R.dreamScore;
+      ex.uni = ex.dreamOk ? R.dream : pickFrom(UNIS[ex.tier]);
+      ex.headline = '考上了' + ex.uni + '！';
+      ex.detail = ex.dreamOk
+        ? '你实现了自己的梦想，这三年的汗水没有白流！'
+        : ex.tier === 'zhuan'
+          ? '分数不算高，但每一个选择都有它的意义——在新的学校，你还能学到真本领。'
+          : '距离梦想大学还差 ' + (R.dreamScore - score) + ' 分，不过更广阔的世界在等你。';
+    }
+    return ex;
+  }
+
+  /* 7. FLOW */
+  function startGame() {
+    var keep = S.name;
+    S = newState();
+    S.name = keep || R.name;
+    S.phase = 'playing';
+    logAdd('开始了新的旅程：从' + gradeLabel(S.grade) + '出发，目标——考上大学！');
+    gotoAllocate();
+  }
+  function gotoAllocate() {
+    S.stage = 'allocate';
+    S.slots = [];
+    S.snap = snapshot();
+    S.termNo += 1;
+    render();
+  }
+  function pickSlot(id) {
+    if (S.stage !== 'allocate' || S.slots.length >= R.slotsPerTerm) return;
+    S.slots.push(id);
+    blip(520 + S.slots.length * 90, 0.08);
+    render();
+  }
+  function removeSlot(i) {
+    if (S.stage !== 'allocate') return;
+    S.slots.splice(i, 1);
+    render();
+  }
+  function confirmAllocate() {
+    if (S.stage !== 'allocate' || S.slots.length < R.slotsPerTerm) return;
+    applyActivities();
+    var summary = {};
+    S.slots.forEach(function (id) { summary[id] = (summary[id] || 0) + 1; });
+    S.slotText = ACTS.filter(function (a) { return summary[a.id]; })
+      .map(function (a) { return a.name + (summary[a.id] > 1 ? ' ×' + summary[a.id] : ''); }).join('、');
+    S.event = pickEvent();
+    S.lastSeen[S.event.id] = S.termNo;
+    if (S.event !== PREP) S.used[S.event.id] = true;
+    S.stage = 'event';
+    blip(660, 0.1);
+    render();
+    showDeltas();
+  }
+  function chooseEvent(i) {
+    if (S.stage !== 'event' || !S.event.choices[i]) return;
+    var ch = S.event.choices[i];
+    applyFx(ch.fx);
+    S.examBonus += ch.bonus || 0;
+    S.evChoice = i;
+    S.evText = fmt(ch.res);
+    if (S.event !== PREP) logAdd(S.event.title + '：' + ch.label);
+    S.stage = 'report';
+    blip(ch.fx && sum(ch.fx) >= 0 ? 740 : 330, 0.14);
+    render();
+    showDeltas();
+  }
+  function sum(o) { var t = 0; for (var k in o) t += o[k]; return t; }
+
+  function continueFlow() {
+    if (S.stage === 'report') {
+      var kind = examNameAt(S.grade) && S.term === 2 ? ({ 6: 'xsc', 9: 'zk', 12: 'gk' })[S.grade] : null;
+      if (kind) { S.exam = makeExam(kind); S.revealed = false; S.stage = 'exam'; render(); return; }
+      nextTerm();
+    } else if (S.stage === 'exam') {
+      if (S.revealed !== true) { if (S.revealed === false) revealExam(); return; }
+      afterExam();
+    }
+  }
+  function nextTerm() {
+    if (S.term === 1) S.term = 2;
+    else { S.term = 1; S.grade += 1; }
+    gotoAllocate();
+  }
+  function revealExam() {
+    if (S.stage !== 'exam' || S.revealed) return;
+    var ex = S.exam;
+    S.revealed = 'running';
+    var target = ex.score;
+    function finish() {
+      S.revealed = true;
+      S.examBonus = 0;
+      logAdd(ex.name + '：' + ex.headline);
+      blip(ex.kind === 'gk' ? 880 : 784, 0.3, 'triangle');
+      render();
+    }
+    if (S.skip) { finish(); return; }
+    var t0 = performance.now(), dur = 1500;
+    (function tick(now) {
+      var p = clamp(((now || performance.now()) - t0) / dur, 0, 1);
+      var el = document.getElementById('lf-score');
+      if (el) el.textContent = String(round(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(tick); else finish();
+    })();
+  }
+  function afterExam() {
+    var ex = S.exam;
+    if (ex.kind === 'xsc' || ex.kind === 'zk') {
+      S.school = ex.school;
+      applyFx({ mood: ex.school === 'A' ? 5 : 1, study: ex.school === 'A' ? 2 : 0 });
+      S.grade += 1; S.term = 1;
+      gotoAllocate();
+      return;
+    }
+    // gaokao
+    S.gaokao = ex.score;
+    if (ex.tier === 'zhuan' && R.retake && !S.retaken) { S.stage = 'retake'; render(); return; }
+    finishGame();
+  }
+  function retakeYear() {
+    S.retaken = true;
+    S.grade = 12; S.term = 1;
+    applyFx({ study: 4, mood: -5 });
+    logAdd('决定再战一年，重新出发！');
+    gotoAllocate();
+  }
+  function titleFor(st) {
+    var all60 = true;
+    for (var k in st) if (st[k] < 60) all60 = false;
+    if (st.study >= 85 && st.health >= 70) return '文武双全的小学霸';
+    if (st.talent >= 80) return R.hobby + '小达人';
+    if (st.friends >= 80) return '最受欢迎的小太阳';
+    if (st.family >= 85) return '家人的贴心小棉袄';
+    if (all60) return '全面发展的好少年';
+    if (st.study >= 80) return '勤奋的追梦人';
+    return '努力生活的小英雄';
+  }
+  function finishGame() {
+    var ex = S.exam;
+    S.phase = 'won';
+    S.stage = 'ending';
+    S.ending = {
+      uni: ex.uni, tier: ex.tier, score: ex.score, dreamOk: ex.dreamOk,
+      title: titleFor(snapshot()), stats: snapshot()
+    };
+    var best = 0;
+    try {
+      best = Number(window.localStorage.getItem('lifesim:best')) || 0;
+      if (ex.score > best) { best = ex.score; window.localStorage.setItem('lifesim:best', String(best)); }
+    } catch (e) { /* storage may be unavailable */ }
+    S.best = best || ex.score;
+    blip(988, 0.5, 'triangle');
+    render();
+  }
+
+  /* 8. SOUND — tiny synthesized blips, started on the first gesture. */
+  var audio = null, muted = false;
+  function blip(freq, dur, type) {
+    if (muted) return;
+    try {
+      if (!audio) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        audio = new AC();
+      }
+      var o = audio.createOscillator(), g = audio.createGain();
+      var t = audio.currentTime, d = dur || 0.12;
+      o.type = type || 'sine';
+      o.frequency.value = freq;
+      o.connect(g); g.connect(audio.destination);
+      g.gain.setValueAtTime(0.05, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.start(t); o.stop(t + d);
+    } catch (e) { /* audio is optional */ }
+  }
+
+  /* 9. UI — DOM layered over the animated canvas background. */
+  var canvas = document.getElementById('game');
+  if (!canvas) {
+    canvas = document.createElement('canvas');
+    canvas.id = 'game';
+    canvas.tabIndex = 0;
+    (document.body || document.documentElement).appendChild(canvas);
+  }
+  var ctx = canvas.getContext('2d');
+
+  var css = ''
+    + '#lf{position:fixed;inset:0;overflow:auto;padding:min(3vmin,18px);color:#2b2540;-webkit-font-smoothing:antialiased;'
+    + 'font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:clamp(14px,2.3vmin,18px);touch-action:manipulation}'
+    + '#lf *{box-sizing:border-box}'
+    + '.lf-top{max-width:1000px;margin:0 auto 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}'
+    + '.lf-pill{background:rgba(255,255,255,.78);backdrop-filter:blur(8px);border-radius:999px;padding:.4em 1.1em;font-weight:800;box-shadow:0 4px 14px rgba(60,30,90,.15)}'
+    + '.lf-btn-mini{border:0;cursor:pointer;font:inherit;background:rgba(255,255,255,.78);border-radius:999px;padding:.4em .9em;box-shadow:0 4px 14px rgba(60,30,90,.15)}'
+    + '.lf-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:minmax(230px,300px) 1fr;gap:14px;align-items:start}'
+    + '@media (max-width:720px){.lf-grid{grid-template-columns:1fr}}'
+    + '.lf-card{background:rgba(255,255,255,.86);backdrop-filter:blur(10px);border-radius:24px;padding:18px 20px;'
+    + 'box-shadow:0 12px 34px rgba(60,30,90,.18);border:1px solid rgba(255,255,255,.75)}'
+    + '.lf-who{display:flex;align-items:center;gap:12px;margin-bottom:12px}'
+    + '.lf-avatar{position:relative;width:78px;height:78px;border-radius:50%;background:#fff;border:4px solid var(--ring,#ff9a5a);flex:none}'
+    + '.lf-avatar img{width:100%;height:100%;object-fit:contain;border-radius:50%}'
+    + '.lf-face{position:absolute;right:-6px;bottom:-4px;font-size:1.5em;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}'
+    + '.lf-name{font-weight:900;font-size:1.25em}.lf-age{opacity:.65;font-size:.9em}'
+    + '.lf-stat{display:grid;grid-template-columns:1.5em 3.4em 1fr 2.2em 2.5em;align-items:center;gap:.45em;margin:.42em 0}'
+    + '.lf-track{height:.72em;border-radius:999px;background:rgba(40,30,70,.12);overflow:hidden}'
+    + '.lf-fill{height:100%;border-radius:999px;transition:width .8s cubic-bezier(.2,.8,.2,1)}'
+    + '.lf-stat>span:nth-child(2){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+    + '.lf-val{text-align:right;font-variant-numeric:tabular-nums;font-weight:800;position:relative}'
+    + '.lf-d{font-size:.85em;font-weight:900;opacity:0;animation:lfFade 4s ease forwards}'
+    + '.lf-d.up{color:#1ea869}.lf-d.dn{color:#e5484d}'
+    + '@keyframes lfFade{0%{opacity:0}10%{opacity:1}85%{opacity:1}100%{opacity:0}}'
+    + '.lf-h1{font-size:clamp(1.5em,5vmin,2.3em);font-weight:900;line-height:1.2;margin:0 0 .3em}'
+    + '.lf-sub{opacity:.75;margin:0 0 1em;line-height:1.6}'
+    + '.lf-acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:.8em 0}'
+    + '.lf-act,.lf-choice{cursor:pointer;border:2px solid transparent;font:inherit;color:inherit;text-align:left;background:#fff;border-radius:16px;'
+    + 'padding:.7em .9em;box-shadow:0 4px 12px rgba(60,30,90,.12);transition:transform .15s,border-color .15s,box-shadow .15s}'
+    + '.lf-act:hover,.lf-choice:hover,.lf-act:focus-visible,.lf-choice:focus-visible{transform:translateY(-2px);border-color:#ff9a5a;outline:none;box-shadow:0 8px 18px rgba(60,30,90,.2)}'
+    + '.lf-act b{display:block;font-size:1.05em}.lf-act small{opacity:.65;display:block;margin-top:.15em}.lf-key{opacity:.4;font-size:.8em;float:right}'
+    + '.lf-slots{display:flex;gap:8px;flex-wrap:wrap;margin:.6em 0}'
+    + '.lf-slot{min-width:5.2em;padding:.5em .8em;border-radius:14px;border:2px dashed rgba(40,30,70,.3);text-align:center;font-weight:700;background:rgba(255,255,255,.5);cursor:pointer}'
+    + '.lf-slot.full{border-style:solid;border-color:#ff9a5a;background:#fff4e8}'
+    + '.lf-choice{display:block;width:100%;margin:.5em 0;font-weight:700}'
+    + '.lf-cta{cursor:pointer;border:0;font:inherit;font-weight:900;color:#fff;padding:.7em 1.8em;border-radius:999px;margin-top:.9em;'
+    + 'background:linear-gradient(180deg,#ff9a5a,#ff5f7a);box-shadow:0 8px 22px rgba(255,95,122,.4);animation:lfPulse 1.8s ease-in-out infinite}'
+    + '.lf-cta[disabled]{opacity:.4;cursor:not-allowed;animation:none;box-shadow:none}'
+    + '.lf-ghost{cursor:pointer;border:2px solid rgba(40,30,70,.25);font:inherit;font-weight:800;background:transparent;color:inherit;padding:.6em 1.4em;border-radius:999px;margin:.9em .5em 0 0}'
+    + '@keyframes lfPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}'
+    + '@media (prefers-reduced-motion:reduce){.lf-cta{animation:none!important}.lf-d{animation:none!important;opacity:1}.lf-fill{transition:none}}'
+    + '.lf-note{background:#fff4e8;border-radius:14px;padding:.7em 1em;margin:.8em 0;line-height:1.6}'
+    + '.lf-warn{color:#c2410c;font-weight:700}'
+    + '.lf-big{font-size:clamp(2.6em,12vmin,5em);font-weight:900;text-align:center;color:#ff5f7a;margin:.1em 0;font-variant-numeric:tabular-nums}'
+    + '.lf-log{margin:.5em 0 0;padding:0;list-style:none;max-height:14em;overflow:auto;font-size:.92em}'
+    + '.lf-log li{padding:.25em 0;border-bottom:1px dashed rgba(40,30,70,.15)}.lf-log b{color:#7b5cff}'
+    + '.lf-input{font:inherit;font-weight:800;padding:.45em .8em;border-radius:12px;border:2px solid rgba(40,30,70,.2);width:9em;margin-left:.4em}';
+  var styleEl = document.createElement('style');
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  function h(tag, props, kids) {
+    var e = document.createElement(tag);
+    if (props) for (var k in props) {
+      var v = props[k];
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k === 'style') e.style.cssText = v;
+      else if (k.slice(0, 2) === 'on') e[k] = v;
+      else e.setAttribute(k, v);
+    }
+    if (kids) kids.forEach(function (c) {
+      if (c === null || c === undefined || c === false) return;
+      e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+    return e;
+  }
+
+  var root = h('div', { id: 'lf' });
+  document.body.appendChild(root);
+  var topPill = h('span', { class: 'lf-pill' });
+  var muteBtn = h('button', { class: 'lf-btn-mini', 'aria-label': '声音开关', text: '🔊', onclick: function () { muted = !muted; muteBtn.textContent = muted ? '🔇' : '🔊'; } });
+  root.appendChild(h('div', { class: 'lf-top' }, [topPill, muteBtn]));
+  var grid = h('div', { class: 'lf-grid' });
+  root.appendChild(grid);
+  var asideEl = h('div', { class: 'lf-card' });
+  var mainEl = h('div', { class: 'lf-card' });
+  grid.appendChild(asideEl);
+  grid.appendChild(mainEl);
+
+  var RINGS = { p: '#ff9a5a', m: '#4d9bff', h: '#a77bff', u: '#f5b83a' };
+  function faceFor(m) { return m >= 80 ? '😄' : m >= 60 ? '🙂' : m >= 40 ? '😐' : m >= 22 ? '😟' : '😢'; }
+
+  function renderAside() {
+    asideEl.innerHTML = '';
+    var st = S.stats, stage = S.stage === 'ending' ? 'u' : stageOf(S.grade);
+    var av = h('div', { class: 'lf-avatar', style: '--ring:' + RINGS[stage] }, [
+      ASSETS.hero ? h('img', { src: ASSETS.hero, alt: S.name }) : h('div', { text: '🧒', style: 'font-size:3em;text-align:center;line-height:70px' }),
+      h('span', { class: 'lf-face', text: faceFor(st.mood) })
+    ]);
+    var age = S.stage === 'title' ? '' : (S.grade + 5) + ' 岁 · ' + gradeLabel(S.grade);
+    asideEl.appendChild(h('div', { class: 'lf-who' }, [av, h('div', null, [
+      h('div', { class: 'lf-name', text: S.name }), h('div', { class: 'lf-age', text: age })
+    ])]));
+    STATS.forEach(function (s) {
+      var val = round(st[s.k]);
+      asideEl.appendChild(h('div', { class: 'lf-stat', 'data-k': s.k }, [
+        h('span', { text: s.icon }), h('span', { text: s.name }),
+        h('div', { class: 'lf-track' }, [h('div', { class: 'lf-fill', style: 'width:' + val + '%;background:' + s.color })]),
+        h('span', { class: 'lf-val', text: String(val) }),
+        h('span', { class: 'lf-dc' })
+      ]));
+    });
+  }
+  function showDeltas() {
+    if (!S.snap) return;
+    var rows = asideEl.querySelectorAll('.lf-stat');
+    for (var i = 0; i < rows.length; i++) {
+      var k = rows[i].getAttribute('data-k');
+      var d = round(S.stats[k]) - S.snap[k];
+      if (!d) continue;
+      var chip = h('span', { class: 'lf-d ' + (d > 0 ? 'up' : 'dn'), text: (d > 0 ? '+' : '') + d });
+      rows[i].querySelector('.lf-dc').appendChild(chip);
+    }
+  }
+
+  function render() {
+    var stage = S.stage === 'ending' ? 'u' : stageOf(S.grade);
+    targetPalette = PALETTES[stage];
+    topPill.textContent = S.stage === 'title' ? '🎓 ' + TITLE : '📅 ' + termLabel();
+    renderAside();
+    mainEl.innerHTML = '';
+    var fn = { title: viewTitle, allocate: viewAllocate, event: viewEvent, report: viewReport, exam: viewExam, retake: viewRetake, ending: viewEnding }[S.stage];
+    if (fn) fn();
+    // On a phone the stats card sits above the action card: bring the action card into view.
+    if (window.innerWidth <= 720 && S.stage !== 'title' && mainEl.scrollIntoView) {
+      try { mainEl.scrollIntoView({ block: 'start', behavior: S.skip ? 'auto' : 'smooth' }); } catch (e) { /* optional */ }
+    }
+  }
+
+  function cta(text, fn, disabled) {
+    var b = h('button', { class: 'lf-cta', text: text, onclick: fn });
+    if (disabled) b.disabled = true;
+    return b;
+  }
+
+  function viewTitle() {
+    var input = h('input', { class: 'lf-input', id: 'lf-name', maxlength: '8', value: S.name, 'aria-label': '你的名字' });
+    input.oninput = function () { S.name = input.value.trim() || R.name; var el = asideEl.querySelector('.lf-name'); if (el) el.textContent = S.name; };
+    mainEl.appendChild(h('h1', { class: 'lf-h1', text: TITLE }));
+    mainEl.appendChild(h('p', { class: 'lf-sub', text: '从' + gradeLabel(R.startGrade) + '开始，一学期一学期地长大，一直到高考——考上你的梦想大学：' + R.dream + '！' }));
+    mainEl.appendChild(h('p', null, ['你的名字：', input]));
+    mainEl.appendChild(h('div', { class: 'lf-note', text: '小提示：6 项属性都要照顾哦！只顾学习会很累，只顾玩，成绩又会掉下去。' }));
+    mainEl.appendChild(cta('开始成长 ▶', startGame));
+    var best = 0;
+    try { best = Number(window.localStorage.getItem('lifesim:best')) || 0; } catch (e) { best = 0; }
+    if (best) mainEl.appendChild(h('p', { class: 'lf-sub', text: '🏆 最高高考分：' + best }));
+  }
+
+  function viewAllocate() {
+    var n = R.slotsPerTerm;
+    mainEl.appendChild(h('h2', { class: 'lf-h1', text: termLabel() }));
+    mainEl.appendChild(h('p', { class: 'lf-sub', text: '这个学期有 ' + n + ' 份时间，你想怎么安排？（点一下选择，点下面的格子可以取消）' }));
+    var low = STATS.filter(function (s) { return S.stats[s.k] < 30; });
+    if (low.length) mainEl.appendChild(h('p', { class: 'lf-warn', text: '⚠ ' + low.map(function (s) { return s.name; }).join('、') + ' 有点低啦，小心影响其他方面～' }));
+    var acts = h('div', { class: 'lf-acts' });
+    ACTS.forEach(function (a, i) {
+      acts.appendChild(h('button', { class: 'lf-act', onclick: function () { pickSlot(a.id); } }, [
+        h('span', { class: 'lf-key', text: String(i + 1) }),
+        h('b', { text: a.icon + ' ' + a.name }), h('small', { text: a.hint })
+      ]));
+    });
+    mainEl.appendChild(acts);
+    var slots = h('div', { class: 'lf-slots' });
+    for (var i = 0; i < n; i++) {
+      (function (idx) {
+        var id = S.slots[idx];
+        slots.appendChild(h('div', { class: 'lf-slot' + (id ? ' full' : ''), text: id ? ACT[id].icon + ' ' + ACT[id].name : '第 ' + (idx + 1) + ' 份', onclick: function () { if (id) removeSlot(idx); } }));
+      })(i);
+    }
+    mainEl.appendChild(slots);
+    mainEl.appendChild(cta('就这样安排 ▶ (Enter)', confirmAllocate, S.slots.length < n));
+  }
+
+  function viewEvent() {
+    var ev = S.event;
+    mainEl.appendChild(h('p', { class: 'lf-sub', text: '这学期你选择了：' + S.slotText }));
+    mainEl.appendChild(h('h2', { class: 'lf-h1', text: '✨ ' + ev.title }));
+    mainEl.appendChild(h('p', { class: 'lf-sub', text: fmt(ev.text) }));
+    ev.choices.forEach(function (c, i) {
+      mainEl.appendChild(h('button', { class: 'lf-choice', onclick: function () { chooseEvent(i); } }, [
+        h('span', { class: 'lf-key', text: String(i + 1) }), c.label
+      ]));
+    });
+  }
+
+  function viewReport() {
+    mainEl.appendChild(h('h2', { class: 'lf-h1', text: '📝 ' + S.event.title }));
+    mainEl.appendChild(h('div', { class: 'lf-note', text: S.evText }));
+    var changes = [];
+    STATS.forEach(function (s) {
+      var d = round(S.stats[s.k]) - S.snap[s.k];
+      if (d) changes.push(s.icon + ' ' + s.name + ' ' + (d > 0 ? '+' : '') + d);
+    });
+    mainEl.appendChild(h('p', { class: 'lf-sub', text: '这学期的变化：' + (changes.length ? changes.join('　') : '风平浪静') }));
+    var low = STATS.filter(function (s) { return S.stats[s.k] < 30; });
+    if (low.length) mainEl.appendChild(h('p', { class: 'lf-warn', text: '⚠ ' + low.map(function (s) { return s.name; }).join('、') + ' 偏低，下学期记得照顾一下～' }));
+    var last = examNameAt(S.grade) && S.term === 2;
+    mainEl.appendChild(cta(last ? '迎接' + examNameAt(S.grade) + ' ▶' : '进入下一学期 ▶ (Enter)', continueFlow));
+  }
+
+  function viewExam() {
+    var ex = S.exam;
+    mainEl.appendChild(h('h2', { class: 'lf-h1', text: '📝 ' + ex.name + '来啦！' }));
+    mainEl.appendChild(h('p', { class: 'lf-sub', text: S.revealed === true ? ex.headline : '深呼吸，把这些年的努力都写在试卷上。' }));
+    var big = h('div', { class: 'lf-big', id: 'lf-score', text: S.revealed === true ? String(ex.score) : '？？？' });
+    mainEl.appendChild(big);
+    if (S.revealed === true) {
+      mainEl.appendChild(h('p', { class: 'lf-sub', style: 'text-align:center', text: '满分 ' + ex.max }));
+      mainEl.appendChild(h('div', { class: 'lf-note', text: ex.detail }));
+      mainEl.appendChild(cta(ex.kind === 'gk' ? '看看结果 ▶' : '继续 ▶ (Enter)', continueFlow));
+    } else if (S.revealed === false) {
+      mainEl.appendChild(cta('揭晓成绩 (Enter)', continueFlow));
+    }
+  }
+
+  function viewRetake() {
+    var ex = S.exam;
+    mainEl.appendChild(h('h2', { class: 'lf-h1', text: '🎓 ' + ex.headline }));
+    mainEl.appendChild(h('p', { class: 'lf-sub', text: '高考 ' + ex.score + ' 分。每条路都能走向美好的未来，你想怎么选？' }));
+    mainEl.appendChild(h('button', { class: 'lf-choice', onclick: finishGame }, [
+      h('span', { class: 'lf-key', text: '1' }), '接受录取，去' + ex.uni + '学一技之长'
+    ]));
+    mainEl.appendChild(h('button', { class: 'lf-choice', onclick: retakeYear }, [
+      h('span', { class: 'lf-key', text: '2' }), '再战一年（复读），冲击更好的学校'
+    ]));
+  }
+
+  function viewEnding() {
+    var e = S.ending;
+    mainEl.appendChild(h('h1', { class: 'lf-h1', text: '🎓 ' + S.name + '考上了' + e.uni + '！' }));
+    mainEl.appendChild(h('div', { class: 'lf-big', text: String(e.score) }));
+    mainEl.appendChild(h('p', { class: 'lf-sub', style: 'text-align:center', text: '高考分数（满分 750）· 最高纪录 ' + S.best }));
+    mainEl.appendChild(h('div', { class: 'lf-note', text: '你的称号：' + e.title + '。' + (e.dreamOk ? '梦想大学' + R.dream + '，你做到了！🎉' : '梦想大学是' + R.dream + '，路还很长，继续加油！') }));
+    mainEl.appendChild(h('p', { class: 'lf-sub', text: '成长回忆：' }));
+    var ul = h('ul', { class: 'lf-log' });
+    S.log.slice(-12).forEach(function (l) { ul.appendChild(h('li', null, [h('b', { text: l.at + ' ' }), l.text])); });
+    mainEl.appendChild(ul);
+    mainEl.appendChild(cta('再玩一次，换一种人生 ▶', function () { S.stage = 'title'; S.phase = 'title'; var keep = S.name; S = newState(); S.name = keep; render(); }));
+  }
+
+  /* Keyboard: 1-6 pick, Backspace undo, Enter/Space continue, any key starts. */
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var typing = e.target && e.target.tagName === 'INPUT';
+    if (S.stage === 'title') {
+      if (typing && e.key !== 'Enter') return;
+      startGame(); e.preventDefault(); return;
+    }
+    var n = Number(e.key);
+    if (S.stage === 'allocate') {
+      if (n >= 1 && n <= ACTS.length) pickSlot(ACTS[n - 1].id);
+      else if (e.key === 'Backspace') { S.slots.pop(); render(); }
+      else if (e.key === 'Enter') confirmAllocate();
+    } else if (S.stage === 'event') {
+      if (n >= 1) chooseEvent(n - 1);
+    } else if (S.stage === 'report' || S.stage === 'exam') {
+      if (e.key === 'Enter' || e.key === ' ') { continueFlow(); e.preventDefault(); }
+    } else if (S.stage === 'retake') {
+      if (n === 1) finishGame(); else if (n === 2) retakeYear();
+    }
+    if (e.key === 'm' || e.key === 'M') muteBtn.onclick();
+  });
+
+  /* 10. BACKGROUND — drifting soft bubbles over a gradient that follows the school stage. */
+  var PALETTES = {
+    p: [[255, 226, 159], [255, 169, 159]],
+    m: [[142, 197, 252], [224, 195, 252]],
+    h: [[161, 140, 209], [251, 194, 235]],
+    u: [[246, 211, 101], [253, 160, 133]]
+  };
+  var targetPalette = PALETTES.p;
+  var curPalette = [PALETTES.p[0].slice(), PALETTES.p[1].slice()];
+  var bubbles = [];
+  for (var bi = 0; bi < 16; bi++) bubbles.push({ x: rand(), y: rand(), r: 14 + rand() * 46, s: 0.3 + rand() * 0.8, p: rand() * 6.28 });
+  var dpr = 1;
+  function resize() {
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    var w = window.innerWidth || 1280, hgt = window.innerHeight || 720;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(hgt * dpr);
+    canvas.style.width = w + 'px'; canvas.style.height = hgt + 'px';
+    canvas.style.position = 'fixed'; canvas.style.inset = '0';
+    // Even when the page is built portrait, the backdrop fills the whole screen.
+    canvas.style.setProperty('width', w + 'px', 'important');
+    canvas.style.setProperty('height', hgt + 'px', 'important');
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  var fps = 60, fpsFrames = 0, fpsAccum = 0, lastTime = 0;
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (!lastTime) lastTime = now;
+    var dt = Math.min(0.05, (now - lastTime) / 1000);
+    lastTime = now;
+    fpsFrames++; fpsAccum += dt;
+    if (fpsAccum >= 0.5) { fps = Math.round(fpsFrames / fpsAccum); fpsFrames = 0; fpsAccum = 0; }
+    for (var i = 0; i < 2; i++) for (var c = 0; c < 3; c++) curPalette[i][c] += (targetPalette[i][c] - curPalette[i][c]) * 0.05;
+    var w = canvas.width / dpr, hgt = canvas.height / dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var g = ctx.createLinearGradient(0, 0, 0, hgt);
+    g.addColorStop(0, 'rgb(' + curPalette[0].map(round).join(',') + ')');
+    g.addColorStop(1, 'rgb(' + curPalette[1].map(round).join(',') + ')');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, hgt);
+    ctx.fillStyle = '#fff';
+    for (var j = 0; j < bubbles.length; j++) {
+      var b = bubbles[j];
+      var x = b.x * w + Math.sin(now / 3500 + b.p) * 24;
+      var y = (((b.y * hgt - now * b.s * 0.012) % hgt) + hgt) % hgt;
+      ctx.globalAlpha = 0.16;
+      ctx.beginPath(); ctx.arc(x, y, b.r, 0, 6.2832); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  requestAnimationFrame(frame);
+
+  /* 11. CONTRACT — read by the studio's playtest and cover generator. */
+  var heroImg = null;
+  if (ASSETS.hero) { heroImg = new Image(); heroImg.src = ASSETS.hero; }
+  function renderSlots(size) {
+    size = size || 256;
+    var out = {};
+    if (!ASSETS.hero || (GAME.slots && GAME.slots.hero && GAME.slots.hero.custom)) return out;
+    var img = heroImg;
+    if (!img || !img.complete || !img.naturalWidth) return out;
+    var c = document.createElement('canvas');
+    c.width = size; c.height = size;
+    c.getContext('2d').drawImage(img, size * 0.07, size * 0.07, size * 0.86, size * 0.86);
+    out.hero = c.toDataURL('image/png');
+    return out;
+  }
+  window.__renderSlots = renderSlots;
+
+  window.__gameState = function () {
+    return {
+      phase: S.phase,
+      stage: S.stage,
+      grade: S.grade,
+      gradeName: gradeLabel(S.grade),
+      term: S.term,
+      age: S.grade + 5,
+      stats: snapshot(),
+      score: S.gaokao || 0,
+      ending: S.ending ? { uni: S.ending.uni, tier: S.ending.tier, score: S.ending.score, dreamOk: !!S.ending.dreamOk, title: S.ending.title } : null,
+      school: S.school,
+      retaken: S.retaken,
+      fps: fps
+    };
+  };
+
+  /* Automatic player for the studio's playtest: takes a handful of sensible
+   * steps per call (a balanced plan: study plus whatever is lowest). */
+  window.__autoplay = function () {
+    S.skip = true;
+    for (var i = 0; i < 12; i++) {
+      var stage = S.stage;
+      if (stage === 'title') startGame();
+      else if (stage === 'allocate') {
+        S.slots = ['study'];
+        var order = STATS.filter(function (s) { return s.k !== 'study'; })
+          .sort(function (a, b) { return S.stats[a.k] - S.stats[b.k]; });
+        var map = { health: 'sport', mood: 'rest', friends: 'friend', talent: 'talent', family: 'family' };
+        for (var j = 0; S.slots.length < R.slotsPerTerm; j++) S.slots.push(map[order[j % order.length].k]);
+        confirmAllocate();
+      } else if (stage === 'event') chooseEvent(0);
+      else if (stage === 'report' || stage === 'exam') continueFlow();
+      else if (stage === 'retake') finishGame();
+      else break;
+    }
+    S.skip = false;
+  };
+
+  window.addEventListener('error', function (e) {
+    try { window.parent.postMessage({ source: 'dsh-game-studio', type: 'error', message: String(e.message) }, '*'); } catch (x) { /* ignore */ }
+  });
+
+  render();
+})();
