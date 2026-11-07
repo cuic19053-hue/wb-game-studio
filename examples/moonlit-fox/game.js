@@ -531,12 +531,12 @@
       ctx.arc(world.w * 0.8, world.h * 0.25, 12, 0, TAU);
       ctx.fill();
     }
-    // Very subtle vignette keeps edges soft in cover mode.
-    var g = ctx.createLinearGradient(0, 0, 0, world.h);
-    g.addColorStop(0, 'rgba(20,40,20,0.10)');
-    g.addColorStop(0.5, 'rgba(0,0,0,0)');
-    g.addColorStop(1, 'rgba(20,40,20,0.10)');
-    ctx.fillStyle = g;
+    // Soft radial vignette: darker edges pull the eye to the play area.
+    var vg = ctx.createRadialGradient(world.w / 2, world.h / 2, Math.min(world.w, world.h) * 0.35,
+                                      world.w / 2, world.h / 2, Math.max(world.w, world.h) * 0.75);
+    vg.addColorStop(0, 'rgba(255,244,200,0.06)');
+    vg.addColorStop(1, 'rgba(8,24,14,0.32)');
+    ctx.fillStyle = vg;
     ctx.fillRect(0, 0, world.w, world.h);
   }
 
@@ -607,6 +607,14 @@
   function drawPickup(p) {
     var bob = Math.sin(p.age * 3) * 4;
     var s = R.pickupSize * (1 + Math.sin(p.age * 3 + 1) * 0.05);
+    // Warm halo so collectibles pop against the ground.
+    var glow = ctx.createRadialGradient(p.x, p.y + bob, 0, p.x, p.y + bob, s * 0.95);
+    glow.addColorStop(0, 'rgba(255,214,120,0.50)');
+    glow.addColorStop(1, 'rgba(255,214,120,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y + bob, s * 0.95, 0, TAU);
+    ctx.fill();
     drawSprite('pickup', p.x, p.y + bob, s, false, 1);
   }
 
@@ -635,8 +643,12 @@
       var f = floaters[i];
       var a = 1 - f.age / f.life;
       ctx.globalAlpha = Math.max(0, a);
-      ctx.fillStyle = f.color;
       ctx.font = 'bold 26px system-ui, sans-serif';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = 'rgba(20,12,4,0.65)';
+      ctx.strokeText(f.text, f.x, f.y);
+      ctx.fillStyle = f.color;
       ctx.fillText(f.text, f.x, f.y);
     }
     ctx.globalAlpha = 1;
@@ -662,40 +674,91 @@
     ctx.restore();
   }
 
+  /* Rounded-rect path (own implementation: ctx.roundRect is not everywhere). */
+  function rrPath(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  /* Soft translucent glass plate used by the HUD pills and the menu panels. */
+  function glass(x, y, w, h, r, alpha) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 4;
+    ctx.fillStyle = 'rgba(12,24,18,' + (alpha || 0.55) + ')';
+    rrPath(x, y, w, h, r);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    var g = ctx.createLinearGradient(0, y, 0, y + h);
+    g.addColorStop(0, 'rgba(255,255,255,0.10)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    rrPath(x, y, w, h, r);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 1.2;
+    rrPath(x + 0.6, y + 0.6, w - 1.2, h - 1.2, r);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function softText(text, x, y, fill) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetY = 2;
+    ctx.fillStyle = fill;
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+
   function drawHUD() {
     var cssW = canvas.width / dpr, cssH = canvas.height / dpr;
     var s = clamp(Math.min(cssW, cssH) / 520, 0.85, 1.5);
-    var pad = 14 * s;
-    var fontSize = Math.round(22 * s);
+    var pad = 12 * s;
+    var fontSize = Math.round(20 * s);
+    var ph = Math.round(fontSize * 1.95);
+    var padX = fontSize * 0.7;
+    var py = pad;
 
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'left';
     ctx.font = 'bold ' + fontSize + 'px system-ui, sans-serif';
 
-    // Hearts (left) + score.
-    var hx = pad;
-    var hy = pad + fontSize * 0.5;
+    // Left pill: hearts + score.
+    var scoreText = '得分 ' + score;
+    var heartsW = R.hearts * fontSize * 1.15;
+    var leftW = padX * 2 + heartsW + 6 + ctx.measureText(scoreText).width;
+    glass(pad, py, leftW, ph, ph / 2, 0.5);
+    var hx = pad + padX + fontSize * 0.5;
+    var hy = py + ph / 2;
     for (var i = 0; i < R.hearts; i++) {
       drawHeart(hx, hy, fontSize * 0.55, i < hearts);
       hx += fontSize * 1.15;
     }
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
-    ctx.lineWidth = 4;
-    ctx.strokeText('得分 ' + score, hx + 8, hy + 1);
-    ctx.fillText('得分 ' + score, hx + 8, hy);
+    softText(scoreText, pad + padX + heartsW + 6, hy + 1, '#ffffff');
 
-    // Timer + shield (right).
-    ctx.textAlign = 'right';
-    var tx = cssW - pad;
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeText(fmtTime(time), tx, hy + 1);
-    ctx.fillText(fmtTime(time), tx, hy);
+    // Right pill: timer (fixed minimum width so it does not jitter), shield below.
+    var tstr = fmtTime(time);
+    var tw = Math.max(ctx.measureText(tstr).width, ctx.measureText('0:00').width);
+    var rightW = padX * 2 + tw;
+    var rx = cssW - pad - rightW;
+    glass(rx, py, rightW, ph, ph / 2, 0.5);
+    ctx.textAlign = 'center';
+    softText(tstr, rx + rightW / 2, hy + 1, time <= 10 && phase === 'playing' ? '#ffb199' : '#ffffff');
     if (shield > 0 && phase === 'playing') {
-      var sy = hy + fontSize * 1.5;
-      ctx.fillStyle = '#9fe8ff';
-      ctx.strokeText('Shield ' + Math.ceil(shield) + 's', tx, sy + 1);
-      ctx.fillText('Shield ' + Math.ceil(shield) + 's', tx, sy);
+      var sstr = 'Shield ' + Math.ceil(shield) + 's';
+      var sw = ctx.measureText(sstr).width + padX * 2;
+      var sy = py + ph + 8 * s;
+      glass(cssW - pad - sw, sy, sw, ph, ph / 2, 0.5);
+      softText(sstr, cssW - pad - sw / 2, sy + ph / 2 + 1, '#9fe8ff');
     }
     ctx.textAlign = 'left';
   }
@@ -703,8 +766,8 @@
   function drawHeart(x, y, r, full) {
     ctx.save();
     ctx.translate(x, y);
-    ctx.fillStyle = full ? '#ff5d6c' : 'rgba(255,255,255,0.25)';
-    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillStyle = full ? '#ff6b7a' : 'rgba(255,255,255,0.22)';
+    ctx.strokeStyle = full ? 'rgba(120,20,40,0.7)' : 'rgba(255,255,255,0.25)';
     ctx.lineWidth = Math.max(1.5, r * 0.18);
     ctx.beginPath();
     ctx.moveTo(0, r * 0.35);
@@ -733,54 +796,80 @@
     }
   }
 
+  /* Dim the scene with a radial falloff so the panel reads as the focus. */
+  function dim(cssW, cssH, strength) {
+    var g = ctx.createRadialGradient(cssW / 2, cssH / 2, Math.min(cssW, cssH) * 0.15,
+                                     cssW / 2, cssH / 2, Math.max(cssW, cssH) * 0.75);
+    g.addColorStop(0, 'rgba(6,14,10,' + (strength * 0.55) + ')');
+    g.addColorStop(1, 'rgba(6,14,10,' + strength + ')');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, cssW, cssH);
+  }
+
+  /* Gold call-to-action pill with a gentle pulse. */
+  function ctaButton(text, cx, cy, s, maxW) {
+    fitFont(text, 21 * s, maxW - 48 * s, 'bold');
+    var w = ctx.measureText(text).width + 52 * s;
+    var h = 46 * s;
+    var pulse = 1 + Math.sin(performance.now() / 260) * 0.025;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(pulse, pulse);
+    ctx.shadowColor = 'rgba(255,190,70,0.45)';
+    ctx.shadowBlur = 20;
+    var g = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+    g.addColorStop(0, '#ffe08a');
+    g.addColorStop(1, '#f2a93b');
+    ctx.fillStyle = g;
+    rrPath(-w / 2, -h / 2, w, h, h / 2);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = '#3a2410';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, 1);
+    ctx.restore();
+  }
+
   function drawOverlay() {
     var cssW = canvas.width / dpr, cssH = canvas.height / dpr;
     var s = clamp(Math.min(cssW, cssH) / 520, 0.85, 1.6);
-    var maxW = cssW - 28;
+    var panelW = Math.min(cssW - 28, 600 * s);
+    var innerW = panelW - 56 * s;
+    var cx = cssW / 2, cy = cssH / 2;
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
     if (phase === 'title') {
-      ctx.fillStyle = 'rgba(10,20,12,0.62)';
-      ctx.fillRect(0, 0, cssW, cssH);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#ffe9a8';
-      fitFont(TITLE, 54 * s, maxW, 'bold');
-      ctx.fillText(TITLE, cssW / 2, cssH * 0.34);
-      ctx.fillStyle = '#ffffff';
-      fitFont('收集灯笼，躲开荆棘怪！', 24 * s, maxW);
-      ctx.fillText('收集灯笼，躲开荆棘怪！', cssW / 2, cssH * 0.46);
-      ctx.fillStyle = '#d6f0d0';
-      fitFont('WASD / 方向键 或 拖动移动  \u00b7  P 暂停  \u00b7  M 静音', 19 * s, maxW);
-      ctx.fillText('WASD / 方向键 或 拖动移动  \u00b7  P 暂停  \u00b7  M 静音', cssW / 2, cssH * 0.56);
-      ctx.fillStyle = '#ffffff';
-      fitFont('按任意键 / 点击开始', 22 * s, maxW, 'bold');
-      ctx.fillText('按任意键 / 点击开始', cssW / 2, cssH * 0.68);
-      ctx.textAlign = 'left';
+      dim(cssW, cssH, 0.55);
+      var ph = 318 * s;
+      glass(cx - panelW / 2, cy - ph / 2, panelW, ph, 26 * s, 0.6);
+      fitFont(TITLE, 50 * s, innerW, 'bold');
+      softText(TITLE, cx, cy - ph * 0.30, '#ffe9a8');
+      fitFont('收集灯笼，躲开荆棘怪！', 23 * s, innerW);
+      softText('收集灯笼，躲开荆棘怪！', cx, cy - ph * 0.10, '#ffffff');
+      fitFont('WASD / 方向键 或 拖动移动  ·  P 暂停  ·  M 静音', 16 * s, innerW);
+      softText('WASD / 方向键 或 拖动移动  ·  P 暂停  ·  M 静音', cx, cy + ph * 0.06, 'rgba(214,240,208,0.85)');
+      ctaButton('按任意键 / 点击开始', cx, cy + ph * 0.28, s, innerW);
     } else if (phase === 'won' || phase === 'lost') {
-      ctx.fillStyle = 'rgba(10,20,12,0.6)';
-      ctx.fillRect(0, 0, cssW, cssH);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = phase === 'won' ? '#ffe9a8' : '#ff9d8a';
-      fitFont(phase === 'won' ? 'Time!' : '被抓到了！', 52 * s, maxW, 'bold');
-      ctx.fillText(phase === 'won' ? 'Time!' : '被抓到了！', cssW / 2, cssH * 0.42);
-      ctx.fillStyle = '#ffffff';
-      fitFont('得分 ' + score, 34 * s, maxW, 'bold');
-      ctx.fillText('得分 ' + score, cssW / 2, cssH * 0.54);
-      ctx.fillStyle = '#d6f0d0';
-      fitFont('按任意键 / 点击再来一次', 20 * s, maxW);
-      ctx.fillText('按任意键 / 点击再来一次', cssW / 2, cssH * 0.66);
-      ctx.textAlign = 'left';
+      dim(cssW, cssH, 0.6);
+      var eh = 292 * s;
+      glass(cx - panelW / 2, cy - eh / 2, panelW, eh, 26 * s, 0.6);
+      var heading = phase === 'won' ? '平安入夜' : '被抓到了！';
+      fitFont(heading, 48 * s, innerW, 'bold');
+      softText(heading, cx, cy - eh * 0.28, phase === 'won' ? '#ffe9a8' : '#ff9d8a');
+      fitFont('得分 ' + score, 36 * s, innerW, 'bold');
+      softText('得分 ' + score, cx, cy - eh * 0.04, '#ffffff');
+      ctaButton('按任意键 / 点击再来一次', cx, cy + eh * 0.27, s, innerW);
     } else if (paused) {
-      ctx.fillStyle = 'rgba(10,20,12,0.55)';
-      ctx.fillRect(0, 0, cssW, cssH);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#ffffff';
-      fitFont('已暂停', 46 * s, maxW, 'bold');
-      ctx.fillText('已暂停', cssW / 2, cssH * 0.5);
-      ctx.textAlign = 'left';
+      dim(cssW, cssH, 0.5);
+      var qh = 130 * s, qw = Math.min(cssW - 28, 340 * s);
+      glass(cx - qw / 2, cy - qh / 2, qw, qh, 24 * s, 0.6);
+      fitFont('已暂停', 44 * s, qw - 40 * s, 'bold');
+      softText('已暂停', cx, cy, '#ffffff');
     }
+    ctx.textAlign = 'left';
   }
 
   /* 10. MAIN LOOP */

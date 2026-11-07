@@ -76,7 +76,7 @@ node "$STUDIO" export   --dir ./games/fox
 
 > 在 WorkBuddy 沙箱里运行时，所有命令请加 `env -u NODE_OPTIONS` 前缀：其 Node shim 会拦截新建目录，并把拒绝伪装成 `EEXIST: mkdir ...`。详见 [SKILL.md](SKILL.md)。
 
-现成示例：`examples/moonlit-fox/dist/index.html`（2D，约 45 KB）、`examples/lantern-isle-3d/dist/index.html`（3D，约 740 KB）。
+现成示例：`examples/moonlit-fox/dist/index.html`（2D，约 48 KB）、`examples/lantern-isle-3d/dist/index.html`（3D，约 740 KB）。
 
 ## 在 WorkBuddy 里用
 

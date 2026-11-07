@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; media-src data: blob:; font-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; form-action 'none'">
 <title>月夜狐·提灯</title>
 <style>html,body{margin:0;height:100%;overflow:hidden;background:#000}canvas{display:block;width:100vw;height:100vh;touch-action:none;outline:none}</style></head><body><canvas id="game" tabindex="0"></canvas>
-<script>window.GAME={"title":"月夜狐·提灯","rules":{"duration":60,"hearts":3,"heroSpeed":320,"enemySpeed":150,"enemySpeedGrowth":3,"enemySpawnEvery":4,"maxEnemies":8,"maxPickups":6,"heroSize":76,"enemySize":68,"pickupSize":44,"shield":{"enabled":false,"every":3,"seconds":4}},"slots":{"hero":{"tile":false,"custom":false},"enemy":{"tile":false,"custom":false},"pickup":{"tile":false,"custom":false},"background":{"tile":true,"custom":false}},"assets":{"hero":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2IiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiI+CiAgPCEtLSBMaXR0bGUgcm91bmQgYWR2ZW50dXJlciwgZmFjaW5nIHRoZSB2aWV3ZXIuIEZsYXQgY2FydG9vbiwgZGFyayBvdXRsaW5lLiAtLT4KICA8IS0tIEdyb3VuZCBzaGFkb3cgLS0+CiAgPGVsbGlwc2UgY3g9IjEyOCIgY3k9IjIyOCIgcng9IjU4IiByeT0iMTYiIGZpbGw9IiMxZjRkMmUiIG9wYWNpdHk9IjAuMzUiLz4KICA8IS0tIEJhY2twYWNrIC0tPgogIDxyZWN0IHg9IjU2IiB5PSIxMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI1MiIgcng9IjEyIiBmaWxsPSIjZThhMTNjIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDxwYXRoIGQ9Ik01NiAxMzJoNDAiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgPCEtLSBMZWdzIC0tPgogIDxyZWN0IHg9Ijg2IiB5PSIxNjgiIHdpZHRoPSIyNiIgaGVpZ2h0PSI0NCIgcng9IjEyIiBmaWxsPSIjMmY2YjRmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDxyZWN0IHg9IjEzNCIgeT0iMTY4IiB3aWR0aD0iMjYiIGhlaWdodD0iNDQiIHJ4PSIxMiIgZmlsbD0iIzJmNmI0ZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiLz4KICA8IS0tIEJvb3RzIC0tPgogIDxyZWN0IHg9Ijc4IiB5PSIxOTgiIHdpZHRoPSI0MiIgaGVpZ2h0PSIyMiIgcng9IjEwIiBmaWxsPSIjN2E0YTJiIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDxyZWN0IHg9IjEyOCIgeT0iMTk4IiB3aWR0aD0iNDIiIGhlaWdodD0iMjIiIHJ4PSIxMCIgZmlsbD0iIzdhNGEyYiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiLz4KICA8IS0tIEJvZHkgLS0+CiAgPHBhdGggZD0iTTc2IDk2YzAtMjYgMjAtNDYgNDYtNDZoMTJjMjYgMCA0NiAyMCA0NiA0NnY2MmMwIDIyLTE2IDQwLTM4IDQyaC0yOGMtMjItMi0zOC0yMC0zOC00MnoiIGZpbGw9IiNlODVkM2QiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4Ii8+CiAgPCEtLSBCZWx0IC0tPgogIDxyZWN0IHg9Ijc2IiB5PSIxNTAiIHdpZHRoPSIxMDQiIGhlaWdodD0iMTQiIGZpbGw9IiMyYjFiMTIiLz4KICA8cmVjdCB4PSIxMTgiIHk9IjE0OCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjE4IiByeD0iNCIgZmlsbD0iI2YyYzE0ZSIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjYiLz4KICA8IS0tIFNjYXJmIGtub3QgLS0+CiAgPHBhdGggZD0iTTk2IDk4YzggOCAyMCAxMiAzMiAxMnMyNC00IDMyLTEybC0xMCAxOGMtNiA2LTE2IDgtMjIgOHMtMTYtMi0yMi04eiIgZmlsbD0iIzNmOGY1YSIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjciLz4KICA8IS0tIEFybXMgLS0+CiAgPHJlY3QgeD0iNDQiIHk9IjEwOCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjU0IiByeD0iMTUiIGZpbGw9IiNlODVkM2QiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4Ii8+CiAgPHJlY3QgeD0iMTgyIiB5PSIxMDgiIHdpZHRoPSIzMCIgaGVpZ2h0PSI1NCIgcng9IjE1IiBmaWxsPSIjZTg1ZDNkIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDxjaXJjbGUgY3g9IjU5IiBjeT0iMTcwIiByPSIxNCIgZmlsbD0iI2Y3ZDlhOCIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiLz4KICA8Y2lyY2xlIGN4PSIxOTciIGN5PSIxNzAiIHI9IjE0IiBmaWxsPSIjZjdkOWE4IiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDwhLS0gSGVhZCAtLT4KICA8Y2lyY2xlIGN4PSIxMjgiIGN5PSI4MiIgcj0iNDIiIGZpbGw9IiNmN2Q5YTgiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4Ii8+CiAgPCEtLSBFeWVzIC0tPgogIDxlbGxpcHNlIGN4PSIxMTIiIGN5PSI3OCIgcng9IjYiIHJ5PSI4IiBmaWxsPSIjMmIxYjEyIi8+CiAgPGVsbGlwc2UgY3g9IjE0NiIgY3k9Ijc4IiByeD0iNiIgcnk9IjgiIGZpbGw9IiMyYjFiMTIiLz4KICA8Y2lyY2xlIGN4PSIxMTQiIGN5PSI3NSIgcj0iMi40IiBmaWxsPSIjZmZmZmZmIi8+CiAgPGNpcmNsZSBjeD0iMTQ4IiBjeT0iNzUiIHI9IjIuNCIgZmlsbD0iI2ZmZmZmZiIvPgogIDwhLS0gQ2hlZWtzIC0tPgogIDxjaXJjbGUgY3g9Ijk4IiBjeT0iOTIiIHI9IjciIGZpbGw9IiNmMDhhNmUiIG9wYWNpdHk9IjAuOCIvPgogIDxjaXJjbGUgY3g9IjE1OCIgY3k9IjkyIiByPSI3IiBmaWxsPSIjZjA4YTZlIiBvcGFjaXR5PSIwLjgiLz4KICA8IS0tIE1vdXRoIC0tPgogIDxwYXRoIGQ9Ik0xMTggOTZjNCA1IDE2IDUgMjAgMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gSGF0IC0tPgogIDxwYXRoIGQ9Ik04NCA2NmMwLTIwIDE2LTM2IDM2LTM2aDE2YzIwIDAgMzYgMTYgMzYgMzZ2MTRIODR6IiBmaWxsPSIjM2Y4ZjVhIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDxyZWN0IHg9Ijc4IiB5PSI3MiIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxNiIgcng9IjgiIGZpbGw9IiMyZjZiNGYiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4Ii8+Cjwvc3ZnPgo=","enemy":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2IiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiI+CiAgPCEtLSBHcnVtcHkgc3Bpa3kgYmxvYi4gRmxhdCBjYXJ0b29uLCBkYXJrIG91dGxpbmUuIC0tPgogIDxlbGxpcHNlIGN4PSIxMjgiIGN5PSIyMzAiIHJ4PSI2MiIgcnk9IjE0IiBmaWxsPSIjMWY0ZDJlIiBvcGFjaXR5PSIwLjM1Ii8+CiAgPCEtLSBTcGlrZXMgLS0+CiAgPHBhdGggZD0iTTEyOCAyNmwxNCAzNC0zOCA4eiIgZmlsbD0iIzVhNGE4ZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNNzQgNTJsMzAgMjAtMzAgMjR6IiBmaWxsPSIjNWE0YThmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogIDxwYXRoIGQ9Ik0xODIgNTJsLTMwIDIwIDMwIDI0eiIgZmlsbD0iIzVhNGE4ZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMTk2IDExNmwtMzAgNiAxMiAzMHoiIGZpbGw9IiM1YTRhOGYiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPHBhdGggZD0iTTYwIDExNmwzMCA2LTEyIDMweiIgZmlsbD0iIzVhNGE4ZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8IS0tIEJvZHkgLS0+CiAgPHBhdGggZD0iTTc4IDgyYzAtMzggMjQtNTggNTAtNThzNTAgMjAgNTAgNThjMCA2MC0yMiA4OC01MCA4OHMtNTAtMjgtNTAtODh6IiBmaWxsPSIjOGE3NGQ2IiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDwhLS0gQmVsbHkgLS0+CiAgPGVsbGlwc2UgY3g9IjEyOCIgY3k9IjE1MCIgcng9IjI4IiByeT0iMjIiIGZpbGw9IiNjM2I0ZjAiIG9wYWNpdHk9IjAuODUiLz4KICA8IS0tIEV5ZXMgLS0+CiAgPHBhdGggZD0iTTk2IDEwNGM4LTEwIDE2LTEwIDIyIDAiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMTM4IDEwNGM2LTEwIDE0LTEwIDIyIDAiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8Y2lyY2xlIGN4PSIxMDciIGN5PSIxMTIiIHI9IjYiIGZpbGw9IiMyYjFiMTIiLz4KICA8Y2lyY2xlIGN4PSIxNDkiIGN5PSIxMTIiIHI9IjYiIGZpbGw9IiMyYjFiMTIiLz4KICA8IS0tIEFuZ3J5IGJyb3dzIC0tPgogIDxwYXRoIGQ9Ik05NCA5MGwyMCA2IiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPHBhdGggZD0iTTE2MiA5MGwtMjAgNiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gTW91dGggLS0+CiAgPHBhdGggZD0iTTExMiAxMzZjMTItMTAgMjItMTAgMzIgMCIgZmlsbD0iIzJiMWIxMiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gVGVldGggLS0+CiAgPHBhdGggZD0iTTExOCAxMzZsNSA5IDUtOSA1IDkgNS05IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPCEtLSBGZWV0IC0tPgogIDxlbGxpcHNlIGN4PSIxMDAiIGN5PSIyMDgiIHJ4PSIyMiIgcnk9IjE2IiBmaWxsPSIjNWE0YThmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDxlbGxpcHNlIGN4PSIxNTYiIGN5PSIyMDgiIHJ4PSIyMiIgcnk9IjE2IiBmaWxsPSIjNWE0YThmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgo8L3N2Zz4K","pickup":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2IiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiI+CiAgPCEtLSBHbG93aW5nIHBhcGVyIGxhbnRlcm4uIEZsYXQgY2FydG9vbiwgZGFyayBvdXRsaW5lLiAtLT4KICA8IS0tIFNvZnQgZ2xvdyAtLT4KICA8Y2lyY2xlIGN4PSIxMjgiIGN5PSIxNDIiIHI9Ijg0IiBmaWxsPSIjZmZkNjZiIiBvcGFjaXR5PSIwLjI4Ii8+CiAgPGNpcmNsZSBjeD0iMTI4IiBjeT0iMTQyIiByPSI2MCIgZmlsbD0iI2ZmYzk0ZCIgb3BhY2l0eT0iMC40Ii8+CiAgPCEtLSBIYW5naW5nIHN0cmluZyAtLT4KICA8bGluZSB4MT0iMTI4IiB5MT0iMTYiIHgyPSIxMjgiIHkyPSI0NiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gVG9wIGNhcCAtLT4KICA8cmVjdCB4PSI5MiIgeT0iNDQiIHdpZHRoPSI3MiIgaGVpZ2h0PSIxOCIgcng9IjgiIGZpbGw9IiNlODVkM2QiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4Ii8+CiAgPCEtLSBSaWJzIC0tPgogIDxwYXRoIGQ9Ik0xMTIgNjBjMCA0MiAxNiA2OCAxNiA5NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDk4YTJiIiBzdHJva2Utd2lkdGg9IjYiLz4KICA8cGF0aCBkPSJNMTQ0IDYwYzAgNDItMTYgNjgtMTYgOTQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q5OGEyYiIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgPHBhdGggZD0iTTEyOCA2MHY5NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDk4YTJiIiBzdHJva2Utd2lkdGg9IjYiLz4KICA8IS0tIExhbnRlcm4gYm9keSAtLT4KICA8cGF0aCBkPSJNODggNjJjMCA1NCAxOCA4NCA0MCA4NHM0MC0zMCA0MC04NGMwLTYtOC0xMi0yMC0xMmgtNDBjLTEyIDAtMjAgNi0yMCAxMnoiIGZpbGw9IiNmZmM5NGQiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4Ii8+CiAgPHBhdGggZD0iTTg4IDY2aDgwIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPHBhdGggZD0iTTkyIDE0NmMwIDggOCAxMiAxNCAxMmg0NGM2IDAgMTQtNCAxNC0xMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gQm90dG9tIGNhcCAtLT4KICA8cmVjdCB4PSI5NCIgeT0iMTUwIiB3aWR0aD0iNjgiIGhlaWdodD0iMTYiIHJ4PSI4IiBmaWxsPSIjZTg1ZDNkIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDwhLS0gVGFzc2VsIC0tPgogIDxsaW5lIHgxPSIxMjgiIHkxPSIxNjYiIHgyPSIxMjgiIHkyPSIxOTIiIHN0cm9rZT0iI2U4NWQzZCIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMTIwIDE5MmM0IDEyIDEyIDEyIDE2IDB6IiBmaWxsPSIjZTg1ZDNkIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogIDwhLS0gSW5uZXIgZ2xvdyAtLT4KICA8ZWxsaXBzZSBjeD0iMTI4IiBjeT0iMTE2IiByeD0iMjIiIHJ5PSIzMCIgZmlsbD0iI2ZmZjNjNCIgb3BhY2l0eT0iMC45Ii8+Cjwvc3ZnPgo=","background":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+CiAgPCEtLSBUb3AtZG93biBncmFzcyBtZWFkb3cgdGlsZS4gT3BhcXVlLCBzZWFtbGVzczsgZGV0YWlscyBrZXB0IGNsZWFyIG9mIGVkZ2VzLiAtLT4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzdmYmY1YSIvPgogIDwhLS0gU29mdCBtb3R0bGluZyAtLT4KICA8Y2lyY2xlIGN4PSI4MCIgY3k9IjkwIiByPSI3MCIgZmlsbD0iIzc0YjE1MSIgb3BhY2l0eT0iMC43Ii8+CiAgPGNpcmNsZSBjeD0iNDMwIiBjeT0iMTIwIiByPSI4MCIgZmlsbD0iIzhhYzg2NiIgb3BhY2l0eT0iMC42Ii8+CiAgPGNpcmNsZSBjeD0iMTIwIiBjeT0iNDIwIiByPSI5MCIgZmlsbD0iIzhhYzg2NiIgb3BhY2l0eT0iMC41Ii8+CiAgPGNpcmNsZSBjeD0iNDAwIiBjeT0iNDAwIiByPSI3MCIgZmlsbD0iIzc0YjE1MSIgb3BhY2l0eT0iMC43Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMjAiIGZpbGw9IiM3NmIzNTIiIG9wYWNpdHk9IjAuMzUiLz4KICA8IS0tIEJsYWRlcyBvZiBncmFzcyAtLT4KICA8ZyBzdHJva2U9IiM1ZTlhNDEiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjg1Ij4KICAgIDxwYXRoIGQ9Ik05MCAxNjBjOC0xNCA2LTI2IDAtMzQiLz4KICAgIDxwYXRoIGQ9Ik0xNTAgMzQwYzEwLTE2IDgtMzAgMC00MCIvPgogICAgPHBhdGggZD0iTTM2MCAxOTBjOC0xNCA2LTI2IDAtMzQiLz4KICAgIDxwYXRoIGQ9Ik0zMDAgNDIwYzEwLTE2IDgtMzAgMC00MCIvPgogICAgPHBhdGggZD0iTTQyMCAzMDBjOC0xNCA2LTI2IDAtMzQiLz4KICAgIDxwYXRoIGQ9Ik0xOTAgMjQwYzgtMTQgNi0yNiAwLTM0Ii8+CiAgICA8cGF0aCBkPSJNMzMwIDMzMGM4LTE0IDYtMjYgMC0zNCIvPgogIDwvZz4KICA8IS0tIFBlYmJsZXMgLS0+CiAgPGVsbGlwc2UgY3g9IjIyMCIgY3k9IjE0MCIgcng9IjIwIiByeT0iMTQiIGZpbGw9IiNiOWM0YjAiIHN0cm9rZT0iIzhmOWE4OCIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgPGVsbGlwc2UgY3g9IjIzMiIgY3k9IjE0NiIgcng9IjEwIiByeT0iNyIgZmlsbD0iI2NmZDhjNyIgb3BhY2l0eT0iMC45Ii8+CiAgPGVsbGlwc2UgY3g9IjM1MCIgY3k9IjM2MCIgcng9IjE2IiByeT0iMTEiIGZpbGw9IiNiOWM0YjAiIHN0cm9rZT0iIzhmOWE4OCIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgPGVsbGlwc2UgY3g9IjMwMCIgY3k9IjE4MCIgcng9IjEyIiByeT0iOCIgZmlsbD0iI2M0Y2RiYyIgc3Ryb2tlPSIjOGY5YTg4IiBzdHJva2Utd2lkdGg9IjUiLz4KICA8IS0tIEZsb3dlciAxIC0tPgogIDxnPgogICAgPGxpbmUgeDE9IjE1MCIgeTE9IjMwMCIgeDI9IjE1MCIgeTI9IjM1MCIgc3Ryb2tlPSIjM2M3YTJmIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPGNpcmNsZSBjeD0iMTM0IiBjeT0iMjkyIiByPSIxMiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjYiLz4KICAgIDxjaXJjbGUgY3g9IjE2NiIgY3k9IjI5MiIgcj0iMTIiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgICA8Y2lyY2xlIGN4PSIxNTAiIGN5PSIyNzYiIHI9IjEyIiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNiIvPgogICAgPGNpcmNsZSBjeD0iMTUwIiBjeT0iMzA4IiByPSIxMiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjYiLz4KICAgIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjI5MiIgcj0iMTAiIGZpbGw9IiNmMmMxNGUiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI1Ii8+CiAgPC9nPgogIDwhLS0gRmxvd2VyIDIgLS0+CiAgPGc+CiAgICA8bGluZSB4MT0iMzkwIiB5MT0iMjUwIiB4Mj0iMzkwIiB5Mj0iMjk0IiBzdHJva2U9IiMzYzdhMmYiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSIzNzYiIGN5PSIyNDQiIHI9IjEwIiBmaWxsPSIjZjdkOWE4IiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNiIvPgogICAgPGNpcmNsZSBjeD0iNDA0IiBjeT0iMjQ0IiByPSIxMCIgZmlsbD0iI2Y3ZDlhOCIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjYiLz4KICAgIDxjaXJjbGUgY3g9IjM5MCIgY3k9IjIzMCIgcj0iMTAiIGZpbGw9IiNmN2Q5YTgiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgICA8Y2lyY2xlIGN4PSIzOTAiIGN5PSIyNTgiIHI9IjEwIiBmaWxsPSIjZjdkOWE4IiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNiIvPgogICAgPGNpcmNsZSBjeD0iMzkwIiBjeT0iMjQ0IiByPSI5IiBmaWxsPSIjZTg1ZDNkIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNSIvPgogIDwvZz4KICA8IS0tIEZsb3dlciAzIChzbWFsbCBidWQpIC0tPgogIDxnPgogICAgPGxpbmUgeDE9IjI2MCIgeTE9Ijg2IiB4Mj0iMjYwIiB5Mj0iMTEyIiBzdHJva2U9IiMzYzdhMmYiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSIyNjAiIGN5PSI4MCIgcj0iOSIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjUiLz4KICAgIDxjaXJjbGUgY3g9IjI2MCIgY3k9IjgwIiByPSI0LjUiIGZpbGw9IiNmMmMxNGUiLz4KICA8L2c+Cjwvc3ZnPgo="},"orientation":"landscape","lang":"zh"};</script>
+<script>window.GAME={"title":"月夜狐·提灯","rules":{"duration":60,"hearts":3,"heroSpeed":320,"enemySpeed":150,"enemySpeedGrowth":3,"enemySpawnEvery":4,"maxEnemies":8,"maxPickups":6,"heroSize":76,"enemySize":68,"pickupSize":44,"shield":{"enabled":false,"every":3,"seconds":4}},"slots":{"hero":{"tile":false,"custom":true},"enemy":{"tile":false,"custom":false},"pickup":{"tile":false,"custom":false},"background":{"tile":true,"custom":false}},"assets":{"hero":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2IiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiI+CiAgPCEtLSBMaXR0bGUgZm94LCBmYWNpbmcgdGhlIHZpZXdlci4gRmxhdCBjYXJ0b29uLCBkYXJrIG91dGxpbmUuIC0tPgogIDxlbGxpcHNlIGN4PSIxMjgiIGN5PSIyMzAiIHJ4PSI2MiIgcnk9IjE0IiBmaWxsPSIjMWY0ZDJlIiBvcGFjaXR5PSIwLjM1Ii8+CiAgPCEtLSBUYWlsIChiZWhpbmQgYm9keSkgd2l0aCBjcmVhbSB0aXAgLS0+CiAgPHBhdGggZD0iTTE2NiAyMDRjNDAgOCA3MC0xOCA3MC01OCAwLTMwLTE0LTUwLTM0LTU2IDIgMjItNiAzOC0yMiA1MC0xMiA5LTI2IDE0LTM4IDE0eiIgZmlsbD0iI2VmN2QzYyIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMjAyIDkwYzIwIDYgMzQgMjYgMzQgNTYgMCAxMi0zIDIyLTggMzAtNC0xNi0xMC0zMC0yMi00MC04LTgtMTItMTgtNC00NnoiIGZpbGw9IiNmZmY0ZTAiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPCEtLSBFYXJzIC0tPgogIDxwYXRoIGQ9Ik02MCA5MiA1MiAyMmw1MiAzOHoiIGZpbGw9IiNlZjdkM2MiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPHBhdGggZD0iTTE5NiA5MiAyMDQgMjJsLTUyIDM4eiIgZmlsbD0iI2VmN2QzYyIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNNjYgNzAgNjIgNDBsMjQgMTd6IiBmaWxsPSIjNWEyZjFhIi8+CiAgPHBhdGggZD0iTTE5MCA3MCAxOTQgNDBsLTI0IDE3eiIgZmlsbD0iIzVhMmYxYSIvPgogIDwhLS0gQm9keSArIGJlbGx5IC0tPgogIDxlbGxpcHNlIGN4PSIxMjgiIGN5PSIxNzYiIHJ4PSI0NiIgcnk9IjQ4IiBmaWxsPSIjZWY3ZDNjIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDxlbGxpcHNlIGN4PSIxMjgiIGN5PSIxODYiIHJ4PSIyNyIgcnk9IjMyIiBmaWxsPSIjZmJlN2M2Ii8+CiAgPCEtLSBTY2FyZiAtLT4KICA8cGF0aCBkPSJNODQgMTQ2YzE0IDEwIDMwIDE0IDQ0IDE0czMwLTQgNDQtMTRsLTYgMjBjLTEyIDgtMjYgMTAtMzggMTBzLTI2LTItMzgtMTB6IiBmaWxsPSIjM2Y4ZjVhIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogIDwhLS0gRmVldCAtLT4KICA8ZWxsaXBzZSBjeD0iMTAyIiBjeT0iMjE4IiByeD0iMTgiIHJ5PSIxMSIgZmlsbD0iIzVhMmYxYSIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjciLz4KICA8ZWxsaXBzZSBjeD0iMTU0IiBjeT0iMjE4IiByeD0iMTgiIHJ5PSIxMSIgZmlsbD0iIzVhMmYxYSIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjciLz4KICA8IS0tIEhlYWQgLS0+CiAgPHBhdGggZD0iTTQ2IDEwOEM0NiA3MCA4MiA1NCAxMjggNTRzODIgMTYgODIgNTRjMCAzMi0zNCA1NC04MiA1NHMtODItMjItODItNTR6IiBmaWxsPSIjZWY3ZDNjIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogIDwhLS0gTXV6emxlIC0tPgogIDxwYXRoIGQ9Ik04MCAxMjJjMTItOCAyOC0xMCA0OC0xMHMzNiAyIDQ4IDEwYy00IDI0LTI0IDM4LTQ4IDM4cy00NC0xNC00OC0zOHoiIGZpbGw9IiNmYmU3YzYiLz4KICA8IS0tIEV5ZXMgLS0+CiAgPGVsbGlwc2UgY3g9Ijk2IiBjeT0iMTA0IiByeD0iNy41IiByeT0iMTAuNSIgZmlsbD0iIzJiMWIxMiIvPgogIDxlbGxpcHNlIGN4PSIxNjAiIGN5PSIxMDQiIHJ4PSI3LjUiIHJ5PSIxMC41IiBmaWxsPSIjMmIxYjEyIi8+CiAgPGNpcmNsZSBjeD0iOTguNSIgY3k9IjEwMC41IiByPSIyLjgiIGZpbGw9IiNmZmYiLz4KICA8Y2lyY2xlIGN4PSIxNjIuNSIgY3k9IjEwMC41IiByPSIyLjgiIGZpbGw9IiNmZmYiLz4KICA8IS0tIEJsdXNoIC0tPgogIDxjaXJjbGUgY3g9Ijc4IiBjeT0iMTI2IiByPSI4IiBmaWxsPSIjZjA4YTZlIiBvcGFjaXR5PSIwLjc1Ii8+CiAgPGNpcmNsZSBjeD0iMTc4IiBjeT0iMTI2IiByPSI4IiBmaWxsPSIjZjA4YTZlIiBvcGFjaXR5PSIwLjc1Ii8+CiAgPCEtLSBOb3NlICsgbW91dGggLS0+CiAgPGVsbGlwc2UgY3g9IjEyOCIgY3k9IjEyNCIgcng9IjkiIHJ5PSI2LjUiIGZpbGw9IiMyYjFiMTIiLz4KICA8cGF0aCBkPSJNMTI4IDEzMHY2TTEyOCAxMzZjLTUgNi0xMyA2LTE4IDFNMTI4IDEzNmM1IDYgMTMgNiAxOCAxIiBmaWxsPSJub25lIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=","enemy":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2IiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiI+CiAgPCEtLSBHcnVtcHkgc3Bpa3kgYmxvYi4gRmxhdCBjYXJ0b29uLCBkYXJrIG91dGxpbmUuIC0tPgogIDxlbGxpcHNlIGN4PSIxMjgiIGN5PSIyMzAiIHJ4PSI2MiIgcnk9IjE0IiBmaWxsPSIjMWY0ZDJlIiBvcGFjaXR5PSIwLjM1Ii8+CiAgPCEtLSBTcGlrZXMgLS0+CiAgPHBhdGggZD0iTTEyOCAyNmwxNCAzNC0zOCA4eiIgZmlsbD0iIzVhNGE4ZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNNzQgNTJsMzAgMjAtMzAgMjR6IiBmaWxsPSIjNWE0YThmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogIDxwYXRoIGQ9Ik0xODIgNTJsLTMwIDIwIDMwIDI0eiIgZmlsbD0iIzVhNGE4ZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMTk2IDExNmwtMzAgNiAxMiAzMHoiIGZpbGw9IiM1YTRhOGYiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPHBhdGggZD0iTTYwIDExNmwzMCA2LTEyIDMweiIgZmlsbD0iIzVhNGE4ZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8IS0tIEJvZHkgLS0+CiAgPHBhdGggZD0iTTc4IDgyYzAtMzggMjQtNTggNTAtNThzNTAgMjAgNTAgNThjMCA2MC0yMiA4OC01MCA4OHMtNTAtMjgtNTAtODh6IiBmaWxsPSIjOGE3NGQ2IiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDwhLS0gQmVsbHkgLS0+CiAgPGVsbGlwc2UgY3g9IjEyOCIgY3k9IjE1MCIgcng9IjI4IiByeT0iMjIiIGZpbGw9IiNjM2I0ZjAiIG9wYWNpdHk9IjAuODUiLz4KICA8IS0tIEV5ZXMgLS0+CiAgPHBhdGggZD0iTTk2IDEwNGM4LTEwIDE2LTEwIDIyIDAiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMTM4IDEwNGM2LTEwIDE0LTEwIDIyIDAiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8Y2lyY2xlIGN4PSIxMDciIGN5PSIxMTIiIHI9IjYiIGZpbGw9IiMyYjFiMTIiLz4KICA8Y2lyY2xlIGN4PSIxNDkiIGN5PSIxMTIiIHI9IjYiIGZpbGw9IiMyYjFiMTIiLz4KICA8IS0tIEFuZ3J5IGJyb3dzIC0tPgogIDxwYXRoIGQ9Ik05NCA5MGwyMCA2IiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPHBhdGggZD0iTTE2MiA5MGwtMjAgNiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gTW91dGggLS0+CiAgPHBhdGggZD0iTTExMiAxMzZjMTItMTAgMjItMTAgMzIgMCIgZmlsbD0iIzJiMWIxMiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gVGVldGggLS0+CiAgPHBhdGggZD0iTTExOCAxMzZsNSA5IDUtOSA1IDkgNS05IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPCEtLSBGZWV0IC0tPgogIDxlbGxpcHNlIGN4PSIxMDAiIGN5PSIyMDgiIHJ4PSIyMiIgcnk9IjE2IiBmaWxsPSIjNWE0YThmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDxlbGxpcHNlIGN4PSIxNTYiIGN5PSIyMDgiIHJ4PSIyMiIgcnk9IjE2IiBmaWxsPSIjNWE0YThmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgo8L3N2Zz4K","pickup":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2IiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiI+CiAgPCEtLSBHbG93aW5nIHBhcGVyIGxhbnRlcm4uIEZsYXQgY2FydG9vbiwgZGFyayBvdXRsaW5lLiAtLT4KICA8IS0tIFNvZnQgZ2xvdyAtLT4KICA8Y2lyY2xlIGN4PSIxMjgiIGN5PSIxNDIiIHI9Ijg0IiBmaWxsPSIjZmZkNjZiIiBvcGFjaXR5PSIwLjI4Ii8+CiAgPGNpcmNsZSBjeD0iMTI4IiBjeT0iMTQyIiByPSI2MCIgZmlsbD0iI2ZmYzk0ZCIgb3BhY2l0eT0iMC40Ii8+CiAgPCEtLSBIYW5naW5nIHN0cmluZyAtLT4KICA8bGluZSB4MT0iMTI4IiB5MT0iMTYiIHgyPSIxMjgiIHkyPSI0NiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gVG9wIGNhcCAtLT4KICA8cmVjdCB4PSI5MiIgeT0iNDQiIHdpZHRoPSI3MiIgaGVpZ2h0PSIxOCIgcng9IjgiIGZpbGw9IiNlODVkM2QiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4Ii8+CiAgPCEtLSBSaWJzIC0tPgogIDxwYXRoIGQ9Ik0xMTIgNjBjMCA0MiAxNiA2OCAxNiA5NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDk4YTJiIiBzdHJva2Utd2lkdGg9IjYiLz4KICA8cGF0aCBkPSJNMTQ0IDYwYzAgNDItMTYgNjgtMTYgOTQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q5OGEyYiIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgPHBhdGggZD0iTTEyOCA2MHY5NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDk4YTJiIiBzdHJva2Utd2lkdGg9IjYiLz4KICA8IS0tIExhbnRlcm4gYm9keSAtLT4KICA8cGF0aCBkPSJNODggNjJjMCA1NCAxOCA4NCA0MCA4NHM0MC0zMCA0MC04NGMwLTYtOC0xMi0yMC0xMmgtNDBjLTEyIDAtMjAgNi0yMCAxMnoiIGZpbGw9IiNmZmM5NGQiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI4Ii8+CiAgPHBhdGggZD0iTTg4IDY2aDgwIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPHBhdGggZD0iTTkyIDE0NmMwIDggOCAxMiAxNCAxMmg0NGM2IDAgMTQtNCAxNC0xMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gQm90dG9tIGNhcCAtLT4KICA8cmVjdCB4PSI5NCIgeT0iMTUwIiB3aWR0aD0iNjgiIGhlaWdodD0iMTYiIHJ4PSI4IiBmaWxsPSIjZTg1ZDNkIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iOCIvPgogIDwhLS0gVGFzc2VsIC0tPgogIDxsaW5lIHgxPSIxMjgiIHkxPSIxNjYiIHgyPSIxMjgiIHkyPSIxOTIiIHN0cm9rZT0iI2U4NWQzZCIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMTIwIDE5MmM0IDEyIDEyIDEyIDE2IDB6IiBmaWxsPSIjZTg1ZDNkIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogIDwhLS0gSW5uZXIgZ2xvdyAtLT4KICA8ZWxsaXBzZSBjeD0iMTI4IiBjeT0iMTE2IiByeD0iMjIiIHJ5PSIzMCIgZmlsbD0iI2ZmZjNjNCIgb3BhY2l0eT0iMC45Ii8+Cjwvc3ZnPgo=","background":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+CiAgPCEtLSBUb3AtZG93biBncmFzcyBtZWFkb3cgdGlsZS4gT3BhcXVlLCBzZWFtbGVzczsgZGV0YWlscyBrZXB0IGNsZWFyIG9mIGVkZ2VzLiAtLT4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzdmYmY1YSIvPgogIDwhLS0gU29mdCBtb3R0bGluZyAtLT4KICA8Y2lyY2xlIGN4PSI4MCIgY3k9IjkwIiByPSI3MCIgZmlsbD0iIzc0YjE1MSIgb3BhY2l0eT0iMC43Ii8+CiAgPGNpcmNsZSBjeD0iNDMwIiBjeT0iMTIwIiByPSI4MCIgZmlsbD0iIzhhYzg2NiIgb3BhY2l0eT0iMC42Ii8+CiAgPGNpcmNsZSBjeD0iMTIwIiBjeT0iNDIwIiByPSI5MCIgZmlsbD0iIzhhYzg2NiIgb3BhY2l0eT0iMC41Ii8+CiAgPGNpcmNsZSBjeD0iNDAwIiBjeT0iNDAwIiByPSI3MCIgZmlsbD0iIzc0YjE1MSIgb3BhY2l0eT0iMC43Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMjAiIGZpbGw9IiM3NmIzNTIiIG9wYWNpdHk9IjAuMzUiLz4KICA8IS0tIEJsYWRlcyBvZiBncmFzcyAtLT4KICA8ZyBzdHJva2U9IiM1ZTlhNDEiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjg1Ij4KICAgIDxwYXRoIGQ9Ik05MCAxNjBjOC0xNCA2LTI2IDAtMzQiLz4KICAgIDxwYXRoIGQ9Ik0xNTAgMzQwYzEwLTE2IDgtMzAgMC00MCIvPgogICAgPHBhdGggZD0iTTM2MCAxOTBjOC0xNCA2LTI2IDAtMzQiLz4KICAgIDxwYXRoIGQ9Ik0zMDAgNDIwYzEwLTE2IDgtMzAgMC00MCIvPgogICAgPHBhdGggZD0iTTQyMCAzMDBjOC0xNCA2LTI2IDAtMzQiLz4KICAgIDxwYXRoIGQ9Ik0xOTAgMjQwYzgtMTQgNi0yNiAwLTM0Ii8+CiAgICA8cGF0aCBkPSJNMzMwIDMzMGM4LTE0IDYtMjYgMC0zNCIvPgogIDwvZz4KICA8IS0tIFBlYmJsZXMgLS0+CiAgPGVsbGlwc2UgY3g9IjIyMCIgY3k9IjE0MCIgcng9IjIwIiByeT0iMTQiIGZpbGw9IiNiOWM0YjAiIHN0cm9rZT0iIzhmOWE4OCIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgPGVsbGlwc2UgY3g9IjIzMiIgY3k9IjE0NiIgcng9IjEwIiByeT0iNyIgZmlsbD0iI2NmZDhjNyIgb3BhY2l0eT0iMC45Ii8+CiAgPGVsbGlwc2UgY3g9IjM1MCIgY3k9IjM2MCIgcng9IjE2IiByeT0iMTEiIGZpbGw9IiNiOWM0YjAiIHN0cm9rZT0iIzhmOWE4OCIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgPGVsbGlwc2UgY3g9IjMwMCIgY3k9IjE4MCIgcng9IjEyIiByeT0iOCIgZmlsbD0iI2M0Y2RiYyIgc3Ryb2tlPSIjOGY5YTg4IiBzdHJva2Utd2lkdGg9IjUiLz4KICA8IS0tIEZsb3dlciAxIC0tPgogIDxnPgogICAgPGxpbmUgeDE9IjE1MCIgeTE9IjMwMCIgeDI9IjE1MCIgeTI9IjM1MCIgc3Ryb2tlPSIjM2M3YTJmIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPGNpcmNsZSBjeD0iMTM0IiBjeT0iMjkyIiByPSIxMiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjYiLz4KICAgIDxjaXJjbGUgY3g9IjE2NiIgY3k9IjI5MiIgcj0iMTIiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgICA8Y2lyY2xlIGN4PSIxNTAiIGN5PSIyNzYiIHI9IjEyIiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNiIvPgogICAgPGNpcmNsZSBjeD0iMTUwIiBjeT0iMzA4IiByPSIxMiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjYiLz4KICAgIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjI5MiIgcj0iMTAiIGZpbGw9IiNmMmMxNGUiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI1Ii8+CiAgPC9nPgogIDwhLS0gRmxvd2VyIDIgLS0+CiAgPGc+CiAgICA8bGluZSB4MT0iMzkwIiB5MT0iMjUwIiB4Mj0iMzkwIiB5Mj0iMjk0IiBzdHJva2U9IiMzYzdhMmYiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSIzNzYiIGN5PSIyNDQiIHI9IjEwIiBmaWxsPSIjZjdkOWE4IiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNiIvPgogICAgPGNpcmNsZSBjeD0iNDA0IiBjeT0iMjQ0IiByPSIxMCIgZmlsbD0iI2Y3ZDlhOCIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjYiLz4KICAgIDxjaXJjbGUgY3g9IjM5MCIgY3k9IjIzMCIgcj0iMTAiIGZpbGw9IiNmN2Q5YTgiIHN0cm9rZT0iIzJiMWIxMiIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgICA8Y2lyY2xlIGN4PSIzOTAiIGN5PSIyNTgiIHI9IjEwIiBmaWxsPSIjZjdkOWE4IiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNiIvPgogICAgPGNpcmNsZSBjeD0iMzkwIiBjeT0iMjQ0IiByPSI5IiBmaWxsPSIjZTg1ZDNkIiBzdHJva2U9IiMyYjFiMTIiIHN0cm9rZS13aWR0aD0iNSIvPgogIDwvZz4KICA8IS0tIEZsb3dlciAzIChzbWFsbCBidWQpIC0tPgogIDxnPgogICAgPGxpbmUgeDE9IjI2MCIgeTE9Ijg2IiB4Mj0iMjYwIiB5Mj0iMTEyIiBzdHJva2U9IiMzYzdhMmYiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSIyNjAiIGN5PSI4MCIgcj0iOSIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMmIxYjEyIiBzdHJva2Utd2lkdGg9IjUiLz4KICAgIDxjaXJjbGUgY3g9IjI2MCIgY3k9IjgwIiByPSI0LjUiIGZpbGw9IiNmMmMxNGUiLz4KICA8L2c+Cjwvc3ZnPgo="},"orientation":"landscape","lang":"zh"};</script>
 <script>/* Lantern Meadow — "collector" starter. Vanilla JS, one classic
  * script. The page defines window.GAME = {title, rules, slots, assets}. */
 (function () {
@@ -538,12 +538,12 @@
       ctx.arc(world.w * 0.8, world.h * 0.25, 12, 0, TAU);
       ctx.fill();
     }
-    // Very subtle vignette keeps edges soft in cover mode.
-    var g = ctx.createLinearGradient(0, 0, 0, world.h);
-    g.addColorStop(0, 'rgba(20,40,20,0.10)');
-    g.addColorStop(0.5, 'rgba(0,0,0,0)');
-    g.addColorStop(1, 'rgba(20,40,20,0.10)');
-    ctx.fillStyle = g;
+    // Soft radial vignette: darker edges pull the eye to the play area.
+    var vg = ctx.createRadialGradient(world.w / 2, world.h / 2, Math.min(world.w, world.h) * 0.35,
+                                      world.w / 2, world.h / 2, Math.max(world.w, world.h) * 0.75);
+    vg.addColorStop(0, 'rgba(255,244,200,0.06)');
+    vg.addColorStop(1, 'rgba(8,24,14,0.32)');
+    ctx.fillStyle = vg;
     ctx.fillRect(0, 0, world.w, world.h);
   }
 
@@ -614,6 +614,14 @@
   function drawPickup(p) {
     var bob = Math.sin(p.age * 3) * 4;
     var s = R.pickupSize * (1 + Math.sin(p.age * 3 + 1) * 0.05);
+    // Warm halo so collectibles pop against the ground.
+    var glow = ctx.createRadialGradient(p.x, p.y + bob, 0, p.x, p.y + bob, s * 0.95);
+    glow.addColorStop(0, 'rgba(255,214,120,0.50)');
+    glow.addColorStop(1, 'rgba(255,214,120,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y + bob, s * 0.95, 0, TAU);
+    ctx.fill();
     drawSprite('pickup', p.x, p.y + bob, s, false, 1);
   }
 
@@ -642,8 +650,12 @@
       var f = floaters[i];
       var a = 1 - f.age / f.life;
       ctx.globalAlpha = Math.max(0, a);
-      ctx.fillStyle = f.color;
       ctx.font = 'bold 26px system-ui, sans-serif';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = 'rgba(20,12,4,0.65)';
+      ctx.strokeText(f.text, f.x, f.y);
+      ctx.fillStyle = f.color;
       ctx.fillText(f.text, f.x, f.y);
     }
     ctx.globalAlpha = 1;
@@ -669,40 +681,91 @@
     ctx.restore();
   }
 
+  /* Rounded-rect path (own implementation: ctx.roundRect is not everywhere). */
+  function rrPath(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  /* Soft translucent glass plate used by the HUD pills and the menu panels. */
+  function glass(x, y, w, h, r, alpha) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 4;
+    ctx.fillStyle = 'rgba(12,24,18,' + (alpha || 0.55) + ')';
+    rrPath(x, y, w, h, r);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    var g = ctx.createLinearGradient(0, y, 0, y + h);
+    g.addColorStop(0, 'rgba(255,255,255,0.10)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    rrPath(x, y, w, h, r);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 1.2;
+    rrPath(x + 0.6, y + 0.6, w - 1.2, h - 1.2, r);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function softText(text, x, y, fill) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetY = 2;
+    ctx.fillStyle = fill;
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+
   function drawHUD() {
     var cssW = canvas.width / dpr, cssH = canvas.height / dpr;
     var s = clamp(Math.min(cssW, cssH) / 520, 0.85, 1.5);
-    var pad = 14 * s;
-    var fontSize = Math.round(22 * s);
+    var pad = 12 * s;
+    var fontSize = Math.round(20 * s);
+    var ph = Math.round(fontSize * 1.95);
+    var padX = fontSize * 0.7;
+    var py = pad;
 
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'left';
     ctx.font = 'bold ' + fontSize + 'px system-ui, sans-serif';
 
-    // Hearts (left) + score.
-    var hx = pad;
-    var hy = pad + fontSize * 0.5;
+    // Left pill: hearts + score.
+    var scoreText = '得分 ' + score;
+    var heartsW = R.hearts * fontSize * 1.15;
+    var leftW = padX * 2 + heartsW + 6 + ctx.measureText(scoreText).width;
+    glass(pad, py, leftW, ph, ph / 2, 0.5);
+    var hx = pad + padX + fontSize * 0.5;
+    var hy = py + ph / 2;
     for (var i = 0; i < R.hearts; i++) {
       drawHeart(hx, hy, fontSize * 0.55, i < hearts);
       hx += fontSize * 1.15;
     }
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
-    ctx.lineWidth = 4;
-    ctx.strokeText('得分 ' + score, hx + 8, hy + 1);
-    ctx.fillText('得分 ' + score, hx + 8, hy);
+    softText(scoreText, pad + padX + heartsW + 6, hy + 1, '#ffffff');
 
-    // Timer + shield (right).
-    ctx.textAlign = 'right';
-    var tx = cssW - pad;
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeText(fmtTime(time), tx, hy + 1);
-    ctx.fillText(fmtTime(time), tx, hy);
+    // Right pill: timer (fixed minimum width so it does not jitter), shield below.
+    var tstr = fmtTime(time);
+    var tw = Math.max(ctx.measureText(tstr).width, ctx.measureText('0:00').width);
+    var rightW = padX * 2 + tw;
+    var rx = cssW - pad - rightW;
+    glass(rx, py, rightW, ph, ph / 2, 0.5);
+    ctx.textAlign = 'center';
+    softText(tstr, rx + rightW / 2, hy + 1, time <= 10 && phase === 'playing' ? '#ffb199' : '#ffffff');
     if (shield > 0 && phase === 'playing') {
-      var sy = hy + fontSize * 1.5;
-      ctx.fillStyle = '#9fe8ff';
-      ctx.strokeText('Shield ' + Math.ceil(shield) + 's', tx, sy + 1);
-      ctx.fillText('Shield ' + Math.ceil(shield) + 's', tx, sy);
+      var sstr = 'Shield ' + Math.ceil(shield) + 's';
+      var sw = ctx.measureText(sstr).width + padX * 2;
+      var sy = py + ph + 8 * s;
+      glass(cssW - pad - sw, sy, sw, ph, ph / 2, 0.5);
+      softText(sstr, cssW - pad - sw / 2, sy + ph / 2 + 1, '#9fe8ff');
     }
     ctx.textAlign = 'left';
   }
@@ -710,8 +773,8 @@
   function drawHeart(x, y, r, full) {
     ctx.save();
     ctx.translate(x, y);
-    ctx.fillStyle = full ? '#ff5d6c' : 'rgba(255,255,255,0.25)';
-    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillStyle = full ? '#ff6b7a' : 'rgba(255,255,255,0.22)';
+    ctx.strokeStyle = full ? 'rgba(120,20,40,0.7)' : 'rgba(255,255,255,0.25)';
     ctx.lineWidth = Math.max(1.5, r * 0.18);
     ctx.beginPath();
     ctx.moveTo(0, r * 0.35);
@@ -740,54 +803,80 @@
     }
   }
 
+  /* Dim the scene with a radial falloff so the panel reads as the focus. */
+  function dim(cssW, cssH, strength) {
+    var g = ctx.createRadialGradient(cssW / 2, cssH / 2, Math.min(cssW, cssH) * 0.15,
+                                     cssW / 2, cssH / 2, Math.max(cssW, cssH) * 0.75);
+    g.addColorStop(0, 'rgba(6,14,10,' + (strength * 0.55) + ')');
+    g.addColorStop(1, 'rgba(6,14,10,' + strength + ')');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, cssW, cssH);
+  }
+
+  /* Gold call-to-action pill with a gentle pulse. */
+  function ctaButton(text, cx, cy, s, maxW) {
+    fitFont(text, 21 * s, maxW - 48 * s, 'bold');
+    var w = ctx.measureText(text).width + 52 * s;
+    var h = 46 * s;
+    var pulse = 1 + Math.sin(performance.now() / 260) * 0.025;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(pulse, pulse);
+    ctx.shadowColor = 'rgba(255,190,70,0.45)';
+    ctx.shadowBlur = 20;
+    var g = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+    g.addColorStop(0, '#ffe08a');
+    g.addColorStop(1, '#f2a93b');
+    ctx.fillStyle = g;
+    rrPath(-w / 2, -h / 2, w, h, h / 2);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = '#3a2410';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, 1);
+    ctx.restore();
+  }
+
   function drawOverlay() {
     var cssW = canvas.width / dpr, cssH = canvas.height / dpr;
     var s = clamp(Math.min(cssW, cssH) / 520, 0.85, 1.6);
-    var maxW = cssW - 28;
+    var panelW = Math.min(cssW - 28, 600 * s);
+    var innerW = panelW - 56 * s;
+    var cx = cssW / 2, cy = cssH / 2;
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
     if (phase === 'title') {
-      ctx.fillStyle = 'rgba(10,20,12,0.62)';
-      ctx.fillRect(0, 0, cssW, cssH);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#ffe9a8';
-      fitFont(TITLE, 54 * s, maxW, 'bold');
-      ctx.fillText(TITLE, cssW / 2, cssH * 0.34);
-      ctx.fillStyle = '#ffffff';
-      fitFont('收集灯笼，躲开荆棘怪！', 24 * s, maxW);
-      ctx.fillText('收集灯笼，躲开荆棘怪！', cssW / 2, cssH * 0.46);
-      ctx.fillStyle = '#d6f0d0';
-      fitFont('WASD / 方向键 或 拖动移动  \u00b7  P 暂停  \u00b7  M 静音', 19 * s, maxW);
-      ctx.fillText('WASD / 方向键 或 拖动移动  \u00b7  P 暂停  \u00b7  M 静音', cssW / 2, cssH * 0.56);
-      ctx.fillStyle = '#ffffff';
-      fitFont('按任意键 / 点击开始', 22 * s, maxW, 'bold');
-      ctx.fillText('按任意键 / 点击开始', cssW / 2, cssH * 0.68);
-      ctx.textAlign = 'left';
+      dim(cssW, cssH, 0.55);
+      var ph = 318 * s;
+      glass(cx - panelW / 2, cy - ph / 2, panelW, ph, 26 * s, 0.6);
+      fitFont(TITLE, 50 * s, innerW, 'bold');
+      softText(TITLE, cx, cy - ph * 0.30, '#ffe9a8');
+      fitFont('收集灯笼，躲开荆棘怪！', 23 * s, innerW);
+      softText('收集灯笼，躲开荆棘怪！', cx, cy - ph * 0.10, '#ffffff');
+      fitFont('WASD / 方向键 或 拖动移动  ·  P 暂停  ·  M 静音', 16 * s, innerW);
+      softText('WASD / 方向键 或 拖动移动  ·  P 暂停  ·  M 静音', cx, cy + ph * 0.06, 'rgba(214,240,208,0.85)');
+      ctaButton('按任意键 / 点击开始', cx, cy + ph * 0.28, s, innerW);
     } else if (phase === 'won' || phase === 'lost') {
-      ctx.fillStyle = 'rgba(10,20,12,0.6)';
-      ctx.fillRect(0, 0, cssW, cssH);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = phase === 'won' ? '#ffe9a8' : '#ff9d8a';
-      fitFont(phase === 'won' ? 'Time!' : '被抓到了！', 52 * s, maxW, 'bold');
-      ctx.fillText(phase === 'won' ? 'Time!' : '被抓到了！', cssW / 2, cssH * 0.42);
-      ctx.fillStyle = '#ffffff';
-      fitFont('得分 ' + score, 34 * s, maxW, 'bold');
-      ctx.fillText('得分 ' + score, cssW / 2, cssH * 0.54);
-      ctx.fillStyle = '#d6f0d0';
-      fitFont('按任意键 / 点击再来一次', 20 * s, maxW);
-      ctx.fillText('按任意键 / 点击再来一次', cssW / 2, cssH * 0.66);
-      ctx.textAlign = 'left';
+      dim(cssW, cssH, 0.6);
+      var eh = 292 * s;
+      glass(cx - panelW / 2, cy - eh / 2, panelW, eh, 26 * s, 0.6);
+      var heading = phase === 'won' ? '平安入夜' : '被抓到了！';
+      fitFont(heading, 48 * s, innerW, 'bold');
+      softText(heading, cx, cy - eh * 0.28, phase === 'won' ? '#ffe9a8' : '#ff9d8a');
+      fitFont('得分 ' + score, 36 * s, innerW, 'bold');
+      softText('得分 ' + score, cx, cy - eh * 0.04, '#ffffff');
+      ctaButton('按任意键 / 点击再来一次', cx, cy + eh * 0.27, s, innerW);
     } else if (paused) {
-      ctx.fillStyle = 'rgba(10,20,12,0.55)';
-      ctx.fillRect(0, 0, cssW, cssH);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#ffffff';
-      fitFont('已暂停', 46 * s, maxW, 'bold');
-      ctx.fillText('已暂停', cssW / 2, cssH * 0.5);
-      ctx.textAlign = 'left';
+      dim(cssW, cssH, 0.5);
+      var qh = 130 * s, qw = Math.min(cssW - 28, 340 * s);
+      glass(cx - qw / 2, cy - qh / 2, qw, qh, 24 * s, 0.6);
+      fitFont('已暂停', 44 * s, qw - 40 * s, 'bold');
+      softText('已暂停', cx, cy, '#ffffff');
     }
+    ctx.textAlign = 'left';
   }
 
   /* 10. MAIN LOOP */

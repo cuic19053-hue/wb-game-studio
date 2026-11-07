@@ -110,28 +110,38 @@ export async function buildWall({ root, filter = 'all', sort = 'recent', out, ti
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(title)}</title>
 <style>
-:root{color-scheme:light}*{box-sizing:border-box}
-body{margin:0;background:#f7f8fa;color:#1c1f23;font:15px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
-header{padding:22px 28px;background:#fff;border-bottom:1px solid #e4e7ec;display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}
-h1{font-size:19px;font-weight:600;margin:0}
-.meta{color:#7b8491;font-size:13px}
-main{max-width:1100px;margin:0 auto;padding:28px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
-button.tile{padding:0;border:1px solid #e4e7ec;border-radius:12px;background:#fff;overflow:hidden;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:transform .15s}
-button.tile:hover{transform:translateY(-3px)}
-.cover{height:150px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1d2550,#e58a6a);color:#fff;font-size:34px;font-weight:600;overflow:hidden}
-.cover img{width:100%;height:100%;object-fit:cover}
-.info{padding:12px 14px 16px}
-.tag{font-size:11px;color:#185fa5;background:#e6f1fb;border-radius:5px;padding:2px 7px}
-.name{display:block;font-size:15px;font-weight:600;margin:8px 0 4px}
-.sub{font-size:12px;color:#7b8491}
+:root{color-scheme:dark;--bg:#0e1220;--surface:#171c2e;--line:rgba(255,255,255,.08);--text:#eef1f8;--muted:#8d97ad;--accent:#ffc65c}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(1200px 500px at 50% -10%,#232a52 0%,transparent 70%),var(--bg);color:var(--text);font:15px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+header{max-width:1120px;margin:0 auto;padding:44px 28px 8px}
+h1{font-size:30px;font-weight:700;letter-spacing:.01em;margin:0 0 6px;background:linear-gradient(90deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.meta{color:var(--muted);font-size:13.5px}
+main{max-width:1120px;margin:0 auto;padding:24px 28px 56px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px}
+button.tile{position:relative;padding:0;border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden;cursor:pointer;text-align:left;font:inherit;color:inherit;box-shadow:0 6px 20px rgba(0,0,0,.28);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+button.tile:hover,button.tile:focus-visible{transform:translateY(-5px);box-shadow:0 14px 34px rgba(0,0,0,.45);border-color:rgba(255,198,92,.45);outline:none}
+.cover{position:relative;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1d2550,#e58a6a);color:#fff;font-size:40px;font-weight:700;overflow:hidden}
+.cover img{width:100%;height:100%;object-fit:cover;transition:transform .45s ease}
+button.tile:hover .cover img{transform:scale(1.06)}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(14,18,32,.75))}
+.play{position:absolute;z-index:1;right:12px;bottom:12px;padding:5px 13px;border-radius:999px;background:linear-gradient(180deg,#ffe08a,#f2a93b);color:#3a2410;font-size:12.5px;font-weight:700;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s}
+button.tile:hover .play,button.tile:focus-visible .play{opacity:1;transform:none}
+.info{padding:14px 16px 18px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;border-radius:999px;padding:2px 9px;color:#9fd0ff;background:rgba(80,150,255,.16)}
+.tag.k3{color:#ffcf8a;background:rgba(255,170,60,.16)}
+.name{display:block;font-size:16px;font-weight:650;margin:9px 0 3px}
+.sub{font-size:12.5px;color:var(--muted)}
 #stage{position:fixed;inset:0;background:#000;display:none;flex-direction:column;z-index:10}
-#bar{height:38px;flex:none;background:#14171c;color:#e7ebf0;display:flex;align-items:center;gap:14px;padding:0 14px;font-size:13px}
-#bar button{background:transparent;border:1px solid #4b5563;color:#e7ebf0;border-radius:6px;padding:3px 10px;cursor:pointer}
+#bar{height:44px;flex:none;background:rgba(14,18,32,.96);border-bottom:1px solid var(--line);color:var(--text);display:flex;align-items:center;gap:14px;padding:0 16px;font-size:13.5px}
+#bar button{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:4px 14px;cursor:pointer;font:inherit;transition:background .15s}
+#bar button:hover{background:rgba(255,255,255,.14)}
+#now{font-weight:600}
 #frame{flex:1;width:100%;border:0;background:#000}
-.empty{padding:40px;color:#7b8491;text-align:center}
+.empty{padding:60px 20px;color:var(--muted);text-align:center}
+@media (max-width:520px){header{padding:30px 18px 4px}main{padding:18px}h1{font-size:24px}.grid{gap:16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
-<header><h1>${escapeHtml(title)}</h1><span class="meta">${included.length} 个游戏 · 筛选 ${escapeHtml(filter)} · 排序 ${escapeHtml(sort)} · 单文件离线</span></header>
+<header><h1>${escapeHtml(title)}</h1><div class="meta">${included.length} 个游戏${filter === 'all' ? '' : ' · 仅 ' + escapeHtml(filter.toUpperCase())} · ${({ recent: '按最近更新', versions: '按版本数', name: '按名称' })[sort] || escapeHtml(sort)} · 单文件离线，点击卡片即可试玩</div></header>
 <main><div class="grid" id="grid"></div><div class="empty" id="empty" hidden>没有可展示的游戏，先跑 build。</div></main>
 <div id="stage"><div id="bar"><button id="back">← 返回 (Esc)</button><span id="now"></span></div><iframe id="frame" title="game"></iframe></div>
 <script id="wall-data" type="application/json">${inlineSafe(JSON.stringify(data))}</script>
@@ -142,7 +152,7 @@ if(!DATA.games.length)document.getElementById('empty').hidden=false;
 DATA.games.forEach(function(g){
   var b=document.createElement('button');b.className='tile';
   var cover=g.cover?'<img alt="" src="'+g.cover+'">':escape(g.title.slice(0,1));
-  b.innerHTML='<div class="cover">'+cover+'</div><div class="info"><span class="tag">'+g.kind+'</span><span class="name">'+escape(g.title)+'</span><span class="sub">'+escape(g.dir)+' · '+g.versions+' 个版本</span></div>';
+  b.innerHTML='<div class="cover">'+cover+'<span class="play">▶ 试玩</span></div><div class="info"><span class="tag'+(g.kind==='3D'?' k3':'')+'">'+g.kind+'</span><span class="name">'+escape(g.title)+'</span><span class="sub">'+escape(g.dir)+' · '+g.versions+' 个版本</span></div>';b.setAttribute('aria-label','试玩 '+g.title);
   b.onclick=function(){open(g)};grid.appendChild(b);
 });
 function escape(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
